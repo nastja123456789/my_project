@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "476354057179",
+    "project_id": "watermarks-ace59",
+    "storage_bucket": "watermarks-ace59.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476354057179:android:60baaa19b39105257b4dfe",
+        "android_client_info": {
+          "package_name": "ru.ytken.a464_project_watermarks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "476354057179-q9hlciupv9e77pi7b6813fb6d593gh18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAijswV5hQZVri8BQE85X250yDEUZAMNVA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "476354057179-q9hlciupv9e77pi7b6813fb6d593gh18.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

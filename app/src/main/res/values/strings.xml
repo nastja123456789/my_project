@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Выделение водяных знаков</string>
+    <string name="FILE_BITMAP">FILE_BITMAP</string>
+    <string name="TEXT_FROM_IMAGE">TEXT_FROM_IMAGE</string>
+    <string name="PATH_TO_IMAGE">PATH_TO_IMAGE</string>
+    <string name="TessOCRText">TessOCRText</string>
+    <string name="CameraPermission">Разрешение на использование камеры не получено</string>
+    <string name="CameraSettings">Разрешение на камеру можно изменить в Настройках</string>
+    <string name="PhotoNotSaved">Ошибка: фото не сохранено</string>
+    <string name="ScanningImage">Сканирую изображение…</string>
+    <string name="ExtractingText">Извлекаю текст…</string>
+    <string name="SearchCharacters">Ищу границы символов…</string>
+    <string name="see_text">Данные о документе</string>
+    <string name="seek_text">Искать текст</string>
+    <string name="scan_image">Сканировать</string>
+    <string name="make_photo">Сделать фото</string>
+    <string name="get_photo">Выбрать фото</string>
+    <string name="text_not_found">Текст не найден \n Попробуйте другое изображение</string>
+
+    <string name="SCANNED_RECT_X_1">SCANNED_RECT_X_1</string>
+    <string name="SCANNED_RECT_X_2">SCANNED_RECT_X_2</string>
+    <string name="SCANNED_RECT_X_3">SCANNED_RECT_X_3</string>
+    <string name="SCANNED_RECT_X_4">SCANNED_RECT_X_4</string>
+    <string name="SCANNED_RECT_Y_1">SCANNED_RECT_Y_1</string>
+    <string name="SCANNED_RECT_Y_2">SCANNED_RECT_Y_2</string>
+    <string name="SCANNED_RECT_Y_3">SCANNED_RECT_Y_3</string>
+    <string name="SCANNED_RECT_Y_4">SCANNED_RECT_Y_4</string>
+    <string name="copyToBuffer">Текст скопирован в буфер обмена</string>
+    <string name="permissionRead">Разрешение на чтение из хранилища не получено</string>
+</resources>
