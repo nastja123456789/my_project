@@ -11,10 +11,10 @@ import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.fragment_button.*
 import ru.ytken.a464_project_watermarks.R
@@ -29,9 +29,6 @@ class ButtonFragment: Fragment(R.layout.fragment_button) {
 
     private val REQUEST_IMAGE_CAPTURE = 1
     private val PICKFILE_RESULT_CODE = 2
-    private val TAG_CAMERA_PERMISSION = 7
-    private val TAG_READ_PERMISSION = 8
-    private val TAG_WRITE_PERMISSION = 9
     private val TAG = ButtonFragment::class.simpleName
 
     private val vm: MainViewModel by activityViewModels()
@@ -44,38 +41,16 @@ class ButtonFragment: Fragment(R.layout.fragment_button) {
         super.onViewCreated(view, savedInstanceState)
 
         buttonTakePhoto.setOnClickListener {
-            requestWritePermission()
-            requestCameraPermission()
+            launchCamera()
         }
 
         buttonChoosePhotoFromStorage.setOnClickListener {
-            requestReadPermission()
-        }
-    }
-
-    private fun requestCameraPermission() {
-        if (context?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.CAMERA) } ==
-            PackageManager.PERMISSION_DENIED) {
-            activity?.let { ActivityCompat.requestPermissions(it, arrayOf(Manifest.permission.CAMERA), TAG_CAMERA_PERMISSION) }
-        } else
-            launchCamera()
-    }
-
-    private fun requestReadPermission() {
-        if (context?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.READ_EXTERNAL_STORAGE)} ==
-            PackageManager.PERMISSION_DENIED) {
-            Toast.makeText(activity, getString(R.string.permissionRead), Toast.LENGTH_SHORT).show()
-            activity?.let { ActivityCompat.requestPermissions(it, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), TAG_READ_PERMISSION) }
-        } else
             getPictureFromExternal()
+        }
+
+
     }
 
-    private fun requestWritePermission() {
-        if (context?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.WRITE_EXTERNAL_STORAGE)} ==
-            PackageManager.PERMISSION_DENIED) {
-            activity?.let { ActivityCompat.requestPermissions(it, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), TAG_WRITE_PERMISSION) }
-        }
-    }
 
     private fun getPictureFromExternal() {
         if (context?.let {
@@ -115,21 +90,6 @@ class ButtonFragment: Fragment(R.layout.fragment_button) {
             }
         } else
             Toast.makeText(context, getString(R.string.CameraPermission), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == this.TAG_CAMERA_PERMISSION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchCamera()
-            } else {
-                Toast.makeText(activity, getString(R.string.CameraSettings), Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -186,5 +146,4 @@ class ButtonFragment: Fragment(R.layout.fragment_button) {
                     .show()
         }
     }
-
 }

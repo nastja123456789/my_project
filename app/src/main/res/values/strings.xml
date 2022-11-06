@@ -27,4 +27,6 @@
     <string name="SCANNED_RECT_Y_4">SCANNED_RECT_Y_4</string>
     <string name="copyToBuffer">Текст скопирован в буфер обмена</string>
     <string name="permissionRead">Разрешение на чтение из хранилища не получено</string>
+    <string name="allPermission">Разрешили использовать память для чтения, получать данные из памяти и доступ к камере</string>
+    <string name="denyPermission">Зайдите в Настройки приложения и разрешите доступ!</string>
 </resources>
