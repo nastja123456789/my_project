@@ -48,7 +48,6 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
     }
     companion object {
         fun newInstance(): ImageResultFragment {
-            Log.d("конструктор","создан конструктор")
             return ImageResultFragment()
         }
     }

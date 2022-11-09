@@ -54,8 +54,8 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         //val pageId = pageFileStorage.add(selectedImage!!)
         //var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
         //cropping = CroppingConfiguration(page)
-
-        resultImageView.visibility = View.GONE
+        resultImageView.visibility = View.VISIBLE
+        resultImageView.setImageBitmap(selectedImage)
         cropButton.setOnClickListener {
             val pageId = pageFileStorage.add(selectedImage!!)
             var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
@@ -64,17 +64,7 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)
             //crop()
         }
-        rotateButton.setOnClickListener {
-            rotatePreview()
-        }
-        backButton.setOnClickListener {
-            backButton.visibility = View.GONE
-            resultImageView.visibility = View.GONE
-            polygonView.visibility = View.VISIBLE
-            cropButton.visibility = View.VISIBLE
-            rotateButton.visibility = View.VISIBLE
-            saveButton.visibility = View.VISIBLE
-        }
+
 
 //        rotateButton.setOnClickListener {
 //            rotatePreview()
@@ -90,48 +80,6 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             findNavController().popBackStack()
         }
 
-        InitImageViewTask().executeOnExecutor(Executors.newSingleThreadExecutor())
-    }
-
-    private fun crop() {
-
-        var documentImage = imageProcessor.processBitmap(originalBitmap, CropOperation(polygonView.polygon), false)
-        documentImage?.let {
-            if (rotationDegrees > 0) {
-                // rotate the final cropped image result based on current rotation value:
-                val matrix = Matrix()
-                matrix.postRotate(rotationDegrees.toFloat())
-                documentImage = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
-            }
-
-            polygonView.visibility = View.GONE
-            cropButton.visibility = View.GONE
-            rotateButton.visibility = View.GONE
-            resultImageView.setImageBitmap(resizeForPreview(documentImage!!))
-            resultImageView.visibility = View.VISIBLE
-            backButton.visibility = View.VISIBLE
-            saveButton.visibility = View.VISIBLE
-        }
-    }
-
-    private fun resizeForPreview(bitmap: Bitmap): Bitmap {
-        val maxW = 1000f
-        val maxH = 1000f
-        val oldWidth = bitmap.width.toFloat()
-        val oldHeight = bitmap.height.toFloat()
-        val scaleFactor = if (oldWidth > oldHeight) maxW / oldWidth else maxH / oldHeight
-        val scaledWidth = (oldWidth * scaleFactor).roundToInt()
-        val scaledHeight = (oldHeight * scaleFactor).roundToInt()
-        return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false)
-    }
-
-    private fun rotatePreview() {
-        if (System.currentTimeMillis() - lastRotationEventTs < 350) {
-            return
-        }
-        rotationDegrees += 90
-        polygonView.rotateClockwise()
-        lastRotationEventTs = System.currentTimeMillis()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -148,40 +96,6 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
         }
     }
-
-    internal inner class InitImageViewTask : AsyncTask<Void?, Void?, InitImageResult>() {
-        private var previewBitmap: Bitmap? = null
-
-        override fun doInBackground(vararg params: Void?): InitImageResult {
-            originalBitmap = selectedImage!!
-            previewBitmap = resizeForPreview(originalBitmap)
-
-            val result = contourDetector.detect(originalBitmap)
-            return when (result?.status) {
-                DetectionStatus.OK,
-                DetectionStatus.OK_BUT_BAD_ANGLES,
-                DetectionStatus.OK_BUT_TOO_SMALL,
-                DetectionStatus.OK_BUT_BAD_ASPECT_RATIO
-                -> {
-                    val linesPair = Pair(result.horizontalLines, result.verticalLines)
-                    val polygon = result.polygonF
-
-                    InitImageResult(linesPair, polygon)
-                }
-                else -> InitImageResult(Pair(listOf(), listOf()), listOf())
-            }
-        }
-        override fun onPostExecute(initImageResult: InitImageResult) {
-            polygonView.setImageBitmap(previewBitmap)
-            magnifier.setupMagnifier(polygonView)
-
-            // set detected polygon and lines into EditPolygonImageView
-            polygonView.polygon = initImageResult.polygon
-            polygonView.setLines(initImageResult.linesPair.first, initImageResult.linesPair.second)
-        }
-    }
-
-    internal inner class InitImageResult(val linesPair: Pair<List<Line2D>, List<Line2D>>, val polygon: List<PointF>)
 
     companion object {
         val CROP_UI_REQUEST_CODE_CONSTANT = 100
