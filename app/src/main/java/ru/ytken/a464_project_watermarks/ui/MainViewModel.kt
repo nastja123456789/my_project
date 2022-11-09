@@ -121,6 +121,10 @@ class MainViewModel: ViewModel() {
         liveScanImage.value = highlightedImage.value
     }
 
+    fun setCropImage(bitmap: Bitmap) {
+        liveInitImage.value = bitmap
+    }
+
     fun setLetterText(text: String) {
         liveScanLettersText.value = text
     }

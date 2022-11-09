@@ -17,6 +17,7 @@ class App: Application() {
         ScanbotSDKInitializer()
             .license(this, LICENSE_KEY) // Please add a valid trial license key here. See the notes below!
             .contourDetectorType(ContourDetector.Type.ML_BASED)
+            .prepareOCRLanguagesBlobs(true)
             .initialize(this)
     }
 

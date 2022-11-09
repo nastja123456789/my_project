@@ -21,35 +21,45 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true">
 
-
         <Button
             android:id="@+id/cropButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Обрезать"/>
+            android:text="Crop"/>
+
         <Button
             android:id="@+id/rotateButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Повернуть"/>
+            android:text="Rotate"/>
+
         <Button
             android:id="@+id/saveButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Сохранить"/>
-
+            android:text="Save" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="Back"
+        android:visibility="gone"/>
 
     <io.scanbot.sdk.ui.EditPolygonImageView
         android:id="@+id/polygonView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="40dp"
         app:edgeColor="#00cea6"
         app:cornerImageSrc="@drawable/ui_crop_corner_handle"
         app:edgeImageSrc="@drawable/ui_crop_side_handle"
         app:editPolygonHandleSize="48dp"
         app:magneticLineTreshold="10dp"
-        app:editPolygonStrokeWidth="3dp"/>
+        android:layout_above="@+id/buttons"/>
 
     <io.scanbot.sdk.ui.MagnifierView
         android:id="@+id/magnifier"
@@ -59,7 +69,7 @@
         app:magnifierImageSrc="@drawable/ui_crop_magnifier"
         app:magnifierRadius="36dp"
         app:magnifierMargin="16dp"
-        app:magnifierEnableBounding="true"/>
+        android:layout_above="@+id/buttons"/>
 
     <ImageView
         android:id="@+id/resultImageView"

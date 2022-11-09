@@ -1,5 +1,7 @@
 package ru.ytken.a464_project_watermarks.ui.fragments
+import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.os.AsyncTask
@@ -12,8 +14,15 @@ import io.scanbot.sdk.ScanbotSDK
 import io.scanbot.sdk.core.contourdetector.ContourDetector
 import io.scanbot.sdk.core.contourdetector.DetectionStatus
 import io.scanbot.sdk.core.contourdetector.Line2D
+import io.scanbot.sdk.persistence.Page
+import io.scanbot.sdk.persistence.PageFileStorage
 import io.scanbot.sdk.process.CropOperation
+import io.scanbot.sdk.process.ImageFilterType
 import io.scanbot.sdk.process.ImageProcessor
+import io.scanbot.sdk.ui.view.edit.CroppingActivity
+import io.scanbot.sdk.ui.view.edit.configuration.CroppingAccessibilityConfiguration
+import io.scanbot.sdk.ui.view.edit.configuration.CroppingConfiguration
+import kotlinx.android.synthetic.main.fragment_image_result.*
 import kotlinx.android.synthetic.main.fragment_photo_crop.*
 import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.ui.MainViewModel
@@ -32,23 +41,47 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
     private var rotationDegrees = 0
 
     private var selectedImage: Bitmap? = null
+    private lateinit var cropping: CroppingConfiguration
+    private lateinit var pageFileStorage: PageFileStorage
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         selectedImage = vm.initImage.value
         val scanbotSDK = ScanbotSDK(context!!)
+        pageFileStorage = scanbotSDK.createPageFileStorage()
         contourDetector = scanbotSDK.createContourDetector()
         imageProcessor = scanbotSDK.imageProcessor()
-        resultImageView.visibility = View.VISIBLE
-        polygonView.visibility = View.VISIBLE
-        rotateButton.visibility = View.VISIBLE
+        //val pageId = pageFileStorage.add(selectedImage!!)
+        //var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+        //cropping = CroppingConfiguration(page)
 
+        resultImageView.visibility = View.GONE
+        cropButton.setOnClickListener {
+            val pageId = pageFileStorage.add(selectedImage!!)
+            var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+            cropping = CroppingConfiguration(page)
+            val intent = CroppingActivity.newIntent(context!!, cropping)
+            startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)
+            //crop()
+        }
         rotateButton.setOnClickListener {
             rotatePreview()
         }
-        cropButton.setOnClickListener {
-            crop()
+        backButton.setOnClickListener {
+            backButton.visibility = View.GONE
+            resultImageView.visibility = View.GONE
+            polygonView.visibility = View.VISIBLE
+            cropButton.visibility = View.VISIBLE
+            rotateButton.visibility = View.VISIBLE
+            saveButton.visibility = View.VISIBLE
         }
+
+//        rotateButton.setOnClickListener {
+//            rotatePreview()
+//        }
+//        cropButton.setOnClickListener {
+//            crop()
+//        }
         saveButton.setOnClickListener {
             findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
         }
@@ -71,9 +104,13 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
                 documentImage = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
             }
 
-            polygonView.polygon = contourDetector.detect(documentImage!!)!!.polygonF
-            polygonView.setLines(contourDetector.detect(documentImage!!)!!.horizontalLines, contourDetector.detect(documentImage!!)!!.verticalLines)
+            polygonView.visibility = View.GONE
+            cropButton.visibility = View.GONE
+            rotateButton.visibility = View.GONE
             resultImageView.setImageBitmap(resizeForPreview(documentImage!!))
+            resultImageView.visibility = View.VISIBLE
+            backButton.visibility = View.VISIBLE
+            saveButton.visibility = View.VISIBLE
         }
     }
 
@@ -86,7 +123,6 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         val scaledWidth = (oldWidth * scaleFactor).roundToInt()
         val scaledHeight = (oldHeight * scaleFactor).roundToInt()
         return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false)
-        return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false)
     }
 
     private fun rotatePreview() {
@@ -96,6 +132,21 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         rotationDegrees += 90
         polygonView.rotateClockwise()
         lastRotationEventTs = System.currentTimeMillis()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CROP_UI_REQUEST_CODE_CONSTANT) {
+            val result = CroppingActivity.extractResult(resultCode, data)!!
+            if (result.resultOk) {
+                val page: String? = result.result!!.pageId
+                val image: Bitmap? = pageFileStorage.getImage(page!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
+                vm.setInitImage(image!!)
+                //imageViewResultImage.setImageBitmap(image)
+                //imageViewResultImage.visibility = View.VISIBLE
+            }
+            findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
+        }
     }
 
     internal inner class InitImageViewTask : AsyncTask<Void?, Void?, InitImageResult>() {
@@ -131,4 +182,8 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
     }
 
     internal inner class InitImageResult(val linesPair: Pair<List<Line2D>, List<Line2D>>, val polygon: List<PointF>)
+
+    companion object {
+        val CROP_UI_REQUEST_CODE_CONSTANT = 100
+    }
 }

@@ -3,7 +3,6 @@ package ru.ytken.a464_project_watermarks.ui.fragments
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -18,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.toGrayscale
-import ru.ytken.a464_project_watermarks.ui.MainActivity
 import ru.ytken.a464_project_watermarks.ui.MainViewModel
 import kotlin.math.sqrt
 
@@ -129,9 +127,4 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
         imageViewCopyToBuffer.visibility = View.VISIBLE
         textViewRecognizedText.text = text
     }
-//    override fun onDestroy() {
-//        activity!!.finish()
-//        super.onDestroy()
-//    }
-
 }
