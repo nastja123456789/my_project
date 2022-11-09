@@ -1,9 +1,13 @@
 package ru.ytken.a464_project_watermarks.ui
 
+import android.Manifest
+import android.content.DialogInterface
 import android.graphics.*
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,14 +16,22 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.googlecode.tesseract.android.TessBaseAPI
+//import com.google.mlkit.vision.common.InputImage
+//import com.google.mlkit.vision.text.Text
+//import com.google.mlkit.vision.text.TextRecognition
+//import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+//import com.googlecode.tesseract.android.TessBaseAPI
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import ru.ytken.a464_project_watermarks.opencv.OpenCvNativeBridge
-import ru.ytken.a464_project_watermarks.ocr.TessOCR
-import ru.ytken.a464_project_watermarks.ui.components.PolygonView
 import ru.ytken.a464_project_watermarks.rotateBitmap
+
+//import ru.ytken.a464_project_watermarks.rotateBitmap
 import java.io.InputStream
 
 class MainViewModel: ViewModel() {
@@ -43,6 +55,8 @@ class MainViewModel: ViewModel() {
     private val liveHasText = MutableLiveData<Boolean>()
     val hasText: LiveData<Boolean> = liveHasText
 
+    var lineBounds: ArrayList<Int> = ArrayList<Int>()
+
     fun findTextInBitmap() {
         var imageBitmap = liveInitImage.value!!
         liveInitImage.value = imageBitmap
@@ -50,8 +64,9 @@ class MainViewModel: ViewModel() {
         var maxBitmap: Bitmap = imageBitmap
         var maxText: Int = 0
         var maxBlocks: List<Text.TextBlock>? = null
+        lineBounds.clear()
 
-        for(i in 0..270 step 90 ) {
+        for(i in 0..360 step 90 ) {
             val copyBitmap = imageBitmap.rotateBitmap(i).copy(Bitmap.Config.ARGB_8888,false)
             val image = InputImage.fromBitmap(copyBitmap, 0)
                 viewModelScope.async(Dispatchers.Default) {
@@ -64,7 +79,7 @@ class MainViewModel: ViewModel() {
                             }
                         }
                         .addOnCompleteListener {
-                            if (i == 270) {
+                            if (i == 360) {
                                 val mutableImageBitmap = maxBitmap.copy(Bitmap.Config.ARGB_8888,true)
 
                                 val canvas = Canvas(mutableImageBitmap)
@@ -75,7 +90,11 @@ class MainViewModel: ViewModel() {
                                 if (maxBlocks != null) {
                                     for (block in maxBlocks!!) {
                                         for (line in block.lines) {
-                                            line.boundingBox?.let { shapeDrawable.setBounds(it) }
+
+                                            line.boundingBox?.let {
+                                                shapeDrawable.bounds = it
+                                                lineBounds.add(it.centerY())
+                                            }
                                             shapeDrawable.draw(canvas)
                                         }
                                     }
@@ -94,45 +113,12 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    fun setInitImage(instr: InputStream? = null, path: String? = null) {
-        liveInitImage.value =
-            if (instr != null)
-                BitmapFactory.decodeStream(instr)
-            else
-                BitmapFactory.decodeFile(path)
+    fun setInitImage(bitmap: Bitmap) {
+        liveInitImage.value = bitmap
     }
-
-    fun getTextFromImage() : Deferred<String> =
-        viewModelScope.async(Dispatchers.Default) {
-            return@async TessOCR.utF8Text.trim()
-        }
-
-    fun getLettersBounds() : Deferred<ArrayList<Rect>> =
-        viewModelScope.async(Dispatchers.Default) {
-            val boundingBoxList: ArrayList<Rect> = ArrayList()
-            val iterator = TessOCR.resultIterator
-            iterator.begin()
-            do {
-                val boundingBox = iterator.getBoundingRect(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL)
-                boundingBoxList.add(boundingBox)
-            } while (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_SYMBOL))
-            return@async boundingBoxList
-        }
-
-    fun setScanImage(bitmap: Bitmap) { liveScanImage.value = bitmap }
-
-    fun getAsyncEdgePoints(nativeClass: OpenCvNativeBridge, polygonView: PolygonView, tempBitmap: Bitmap): Deferred<Map<Int, PointF>> =
-        viewModelScope.async {
-            val pointFs: List<PointF> = nativeClass.getContourEdgePoints(tempBitmap)
-            polygonView.getOrderedValidEdgePoints(tempBitmap, pointFs)
-        }
 
     fun setScanImageToInit() {
-        liveScanImage.value = liveInitImage.value
-    }
-
-    fun setLetterImage(bitmap: Bitmap) {
-        liveScanLettersImage.value = bitmap
+        liveScanImage.value = highlightedImage.value
     }
 
     fun setLetterText(text: String) {

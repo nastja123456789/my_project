@@ -23,7 +23,18 @@
         android:orientation="vertical"
         android:weightSum="10">
 
-        <com.github.chrisbanes.photoview.PhotoView
+<!--        <ImageView-->
+<!--            android:id="@+id/imageViewSkanned"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_weight="8"-->
+<!--                    app:layout_constraintBottom_toTopOf="@+id/scrollView2"-->
+<!--                   app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                   app:layout_constraintTop_toTopOf="parent"-->
+<!--                    />-->
+
+                <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/imageViewSkanned"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -51,6 +62,7 @@
                 android:background="@color/transparent"
                 android:textColor="@color/black"
                 android:textSize="@dimen/small_text_size"/>
+
 
         </ScrollView>
 

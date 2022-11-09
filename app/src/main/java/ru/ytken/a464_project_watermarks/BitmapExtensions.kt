@@ -1,23 +1,16 @@
 package ru.ytken.a464_project_watermarks
 
 import android.graphics.*
-import org.opencv.android.Utils
-import org.opencv.core.CvType
-import org.opencv.core.Mat
-import org.opencv.core.Scalar
+//import org.opencv.android.Utils
+//import org.opencv.core.CvType
+//import org.opencv.core.Mat
+//import org.opencv.core.Scalar
 
 
 internal fun Bitmap.rotateBitmap(angle: Int): Bitmap {
     val matrix = Matrix()
     matrix.postRotate(angle.toFloat())
     return Bitmap.createBitmap(this, 0, 0, this.width, this.height, matrix, true)
-}
-
-internal fun Bitmap.toMat(): Mat {
-    val mat = Mat(this.height, this.width, CvType.CV_8U, Scalar(4.toDouble()))
-    val bitmap32 = this.copy(Bitmap.Config.ARGB_8888, true)
-    Utils.bitmapToMat(bitmap32, mat)
-    return mat
 }
 
 fun Bitmap.toGrayscale(): Bitmap? {

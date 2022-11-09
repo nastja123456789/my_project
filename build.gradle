@@ -5,6 +5,10 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven { url 'https://jitpack.io' }
+
+        maven { url "https://nexus.scanbot.io/nexus/content/repositories/releases/" }
+        maven { url "https://nexus.scanbot.io/nexus/content/repositories/snapshots/" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.3.0'
@@ -19,6 +23,9 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
+
+        maven { url "https://nexus.scanbot.io/nexus/content/repositories/releases/" }
+        maven { url "https://nexus.scanbot.io/nexus/content/repositories/snapshots/" }
     }
 }
 

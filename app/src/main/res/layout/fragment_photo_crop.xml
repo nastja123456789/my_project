@@ -1,73 +1,149 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
     tools:context=".ui.fragments.PhotoCropFragment">
 
-    <FrameLayout
-        android:id="@+id/holderImageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottomBar">
-
-        <FrameLayout
-            android:id="@+id/holderImageCrop"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center">
-
-            <ImageView
-                android:id="@+id/imagePreview"
-                android:adjustViewBounds="true"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-        </FrameLayout>
-
-        <ru.ytken.a464_project_watermarks.ui.components.PolygonView
-            android:id="@+id/polygonView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"/>
-
-    </FrameLayout>
-
-    <RelativeLayout
-        android:id="@+id/bottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/zdc_top_bar_height"
-        android:background="@android:color/white"
-        android:layout_alignParentBottom="true">
-
-        <ImageView
-            android:id="@+id/closeButton"
-            android:layout_width="@dimen/zdc_image_view_icons_dimens"
-            android:layout_height="@dimen/zdc_image_view_icons_dimens"
-            android:padding="@dimen/zdc_x_small_padding"
-            android:layout_marginStart="@dimen/zdc_medium_padding"
-            android:layout_centerVertical="true"
-            android:src="@drawable/iconclose"/>
-
-        <ImageView
-            android:id="@+id/confirmButton"
-            android:layout_width="@dimen/zdc_image_view_icons_dimens"
-            android:layout_height="@dimen/zdc_image_view_icons_dimens"
-            android:src="@drawable/zdc_tick_icon"
-            android:padding="@dimen/zdc_xx_small_padding"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/zdc_medium_padding"
-            android:layout_alignParentEnd="true"/>
-    </RelativeLayout>
-
-    <ProgressBar
-        android:id="@+id/progressBarScanning"
-        style="?android:attr/progressBarStyle"
+    <ImageButton
+        android:id="@+id/imageButtonCloseCrop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:elevation="10dp"
-        android:layout_centerInParent="true"/>
+        android:elevation="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/btn_dialog" />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
+
+
+        <Button
+            android:id="@+id/cropButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Обрезать"/>
+        <Button
+            android:id="@+id/rotateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Повернуть"/>
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Сохранить"/>
+
+    </LinearLayout>
+
+    <io.scanbot.sdk.ui.EditPolygonImageView
+        android:id="@+id/polygonView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:edgeColor="#00cea6"
+        app:cornerImageSrc="@drawable/ui_crop_corner_handle"
+        app:edgeImageSrc="@drawable/ui_crop_side_handle"
+        app:editPolygonHandleSize="48dp"
+        app:magneticLineTreshold="10dp"
+        app:editPolygonStrokeWidth="3dp"/>
+
+    <io.scanbot.sdk.ui.MagnifierView
+        android:id="@+id/magnifier"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="40dp"
+        app:magnifierImageSrc="@drawable/ui_crop_magnifier"
+        app:magnifierRadius="36dp"
+        app:magnifierMargin="16dp"
+        app:magnifierEnableBounding="true"/>
+
+    <ImageView
+        android:id="@+id/resultImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"/>
 
 </RelativeLayout>
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:background="@android:color/black"-->
+<!--    tools:context=".ui.fragments.PhotoCropFragment">-->
+
+<!--    <FrameLayout-->
+<!--        android:id="@+id/holderImageView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_above="@id/bottomBar">-->
+
+<!--        <FrameLayout-->
+<!--            android:id="@+id/holderImageCrop"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_gravity="center">-->
+
+<!--&lt;!&ndash;            <ImageView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:id="@+id/cropped_image_view"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:contentDescription="description" />&ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:id="@+id/imagePreview"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"/>-->
+
+<!--        </FrameLayout>-->
+
+<!--        <ru.ytken.a464_project_watermarks.ui.components.PolygonView-->
+<!--            android:id="@+id/polygonView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="gone"/>-->
+
+<!--    </FrameLayout>-->
+
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/bottomBar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="@dimen/zdc_top_bar_height"-->
+<!--        android:background="@android:color/white"-->
+<!--        android:layout_alignParentBottom="true">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/closeButton"-->
+<!--            android:layout_width="@dimen/zdc_image_view_icons_dimens"-->
+<!--            android:layout_height="@dimen/zdc_image_view_icons_dimens"-->
+<!--            android:padding="@dimen/zdc_x_small_padding"-->
+<!--            android:layout_marginStart="@dimen/zdc_medium_padding"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:src="@drawable/iconclose"/>-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/confirmButton"-->
+<!--            android:layout_width="@dimen/zdc_image_view_icons_dimens"-->
+<!--            android:layout_height="@dimen/zdc_image_view_icons_dimens"-->
+<!--            android:src="@drawable/zdc_tick_icon"-->
+<!--            android:padding="@dimen/zdc_xx_small_padding"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_marginEnd="@dimen/zdc_medium_padding"-->
+<!--            android:layout_alignParentEnd="true"/>-->
+<!--    </RelativeLayout>-->
+
+<!--    <ProgressBar-->
+<!--        android:id="@+id/progressBarScanning"-->
+<!--        style="?android:attr/progressBarStyle"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:elevation="10dp"-->
+<!--        android:layout_centerInParent="true"/>-->
+
+<!--</RelativeLayout>-->

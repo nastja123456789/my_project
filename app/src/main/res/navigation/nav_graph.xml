@@ -4,18 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/buttonFragment">
-
-    <fragment
-        android:id="@+id/seeScanFragment"
-        android:name="ru.ytken.a464_project_watermarks.ui.fragments.SeeScanFragment"
-        android:label="SeeScanFragment"
-        tools:layout="@layout/fragment_scan_result">
-        <action
-            android:id="@+id/action_seeScanFragment_to_buttonFragment"
-            app:destination="@id/buttonFragment"
-            app:popUpTo="@+id/buttonFragment"
-            app:popUpToInclusive="true"/>
-    </fragment>
     <fragment
         android:id="@+id/buttonFragment"
         android:name="ru.ytken.a464_project_watermarks.ui.fragments.ButtonFragment"
@@ -24,18 +12,9 @@
         <action
             android:id="@+id/action_mainFragment_to_imageResultFragment"
             app:destination="@id/imageResultFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/photoCropFragment"
-        android:name="ru.ytken.a464_project_watermarks.ui.fragments.PhotoCropFragment"
-        android:label="PhotoCropFragment"
-        tools:layout="@layout/fragment_photo_crop">
         <action
-            android:id="@+id/action_imageCropFragment_to_seeScanFragment"
-            app:destination="@id/seeScanFragment" />
-        <argument
-            android:name="@string/FILE_BITMAP"
-            app:argType="android.graphics.Bitmap" />
+            android:id="@+id/action_buttonFragment_to_photoCropFragment"
+            app:destination="@id/photoCropFragment" />
     </fragment>
     <fragment
         android:id="@+id/imageResultFragment"
@@ -43,10 +22,29 @@
         android:label="ImageResultFragment"
         tools:layout="@layout/fragment_image_result">
         <action
-            android:id="@+id/action_imageResultFragment_to_imageCropFragment"
-            app:destination="@id/photoCropFragment" />
-        <action
             android:id="@+id/action_imageResultFragment_to_seeScanFragment"
             app:destination="@id/seeScanFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/photoCropFragment"
+        android:name="ru.ytken.a464_project_watermarks.ui.fragments.PhotoCropFragment"
+        android:label="PhotoCropFragment"
+        tools:layout="@layout/fragment_photo_crop">
+        <action
+            android:id="@+id/action_photoCropFragment_to_imageResultFragment"
+            app:destination="@id/imageResultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/seeScanFragment"
+        android:name="ru.ytken.a464_project_watermarks.ui.fragments.SeeScanFragment"
+        android:label="SeeScanFragment"
+        tools:layout="@layout/fragment_scan_result">
+
+        <action
+            android:id="@+id/action_seeScanFragment_to_buttonFragment"
+            app:destination="@id/buttonFragment"
+            app:popUpTo="@id/buttonFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
 </navigation>
