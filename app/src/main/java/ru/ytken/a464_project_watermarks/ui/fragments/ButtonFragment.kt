@@ -59,6 +59,9 @@ class ButtonFragment() : Fragment(
 
         buttonChoosePhotoFromStorage.setOnClickListener {
                 galleryImageLauncher.launch(Unit)
+                buttonChoosePhotoFromStorage.visibility = View.INVISIBLE
+                buttonTakePhoto.visibility = View.INVISIBLE
+            progressBarWaitForResult.visibility = View.VISIBLE
             }
         }
 
