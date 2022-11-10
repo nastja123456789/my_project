@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                 PageFileStorage.PageFileType.DOCUMENT //cropped image
             )
             viewModel.setInitImage(image!!)
-            viewModel.findTextInBitmap()
+            //viewModel.findTextInBitmap()
             ImageResultFragment.newInstance()
             findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)
         }
