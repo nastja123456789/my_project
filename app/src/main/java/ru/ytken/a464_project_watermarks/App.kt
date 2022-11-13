@@ -12,7 +12,6 @@ class App: Application() {
 
     override fun onCreate() {
         super.onCreate()
-//        System.loadLibrary("opencv_java4")
 
         ScanbotSDKInitializer()
             .license(this, LICENSE_KEY) // Please add a valid trial license key here. See the notes below!

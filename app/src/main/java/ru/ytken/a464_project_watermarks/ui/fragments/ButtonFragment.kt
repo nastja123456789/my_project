@@ -4,12 +4,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import io.scanbot.sdk.ScanbotSDK
 import io.scanbot.sdk.docprocessing.PageProcessor
@@ -18,8 +17,6 @@ import io.scanbot.sdk.persistence.PageFileStorage
 import io.scanbot.sdk.ui.view.camera.DocumentScannerActivity
 import io.scanbot.sdk.ui.view.camera.configuration.DocumentScannerConfiguration
 import kotlinx.android.synthetic.main.fragment_button.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.ui.MainActivity.Companion.galleryImageLauncher
 import ru.ytken.a464_project_watermarks.ui.MainViewModel
@@ -33,13 +30,16 @@ class ButtonFragment() : Fragment(
 
     private val vm: MainViewModel by activityViewModels()
 
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
+        )[MainViewModel::class.java]
+    }
+
     private lateinit var pageFileStorage: PageFileStorage
 
-//    private lateinit var galleryImageLauncher: ActivityResultLauncher<Unit>
-
     private lateinit var pageProcess: PageProcessor
-    private lateinit var image: Bitmap
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

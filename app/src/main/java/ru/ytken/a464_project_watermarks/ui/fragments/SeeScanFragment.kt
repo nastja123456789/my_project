@@ -27,24 +27,13 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //imageButtonNoSkan.visibility = View.INVISIBLE
-
         val fileWithImage = vm.scanImage.value
-        //val fileWithImage = vm.highlightedImage.value
         Log.d(TAG, "fileWithImage=$fileWithImage")
-//        context?.let { TessOCR.initDirs(it) }
-//        TessOCR.initLang("eng")
-//        TessOCR.initLang("rus")
         if (fileWithImage != null) {
             processImage(fileWithImage.toGrayscale()!!)
         }
 
         imageButtonNoSkan.setOnClickListener {
-            //activity?.supportFragmentManager?.popBackStack()
-           // findNavController().popBackStack()
-//            val int = Intent(context, MainActivity::class.java)
-//            int.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-//            startActivity(int)
             findNavController().navigate(SeeScanFragmentDirections.actionSeeScanFragmentToButtonFragment())
         }
 
@@ -66,7 +55,6 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
         fileWithImage?.let {
             imageViewSkanned.setImageBitmap(vm.initImage.value)
 
-            //imageViewSkanned.setImageBitmap(it)
             imageButtonNoSkan.visibility = View.VISIBLE
 
             val watermarkSize = 24

@@ -9,7 +9,6 @@ import androidx.activity.result.contract.ActivityResultContract
 
 class ImportImageContract(private val context: Context) : ActivityResultContract<Unit, Bitmap?>() {
     override fun createIntent(context: Context, input: Unit): Intent {
-        // select an image from photo library and run document detection on it:
         val imageIntent = Intent()
         imageIntent.type = "image/*"
         imageIntent.action = Intent.ACTION_GET_CONTENT

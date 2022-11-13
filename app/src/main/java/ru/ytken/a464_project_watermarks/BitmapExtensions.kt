@@ -1,11 +1,6 @@
 package ru.ytken.a464_project_watermarks
 
 import android.graphics.*
-//import org.opencv.android.Utils
-//import org.opencv.core.CvType
-//import org.opencv.core.Mat
-//import org.opencv.core.Scalar
-
 
 internal fun Bitmap.rotateBitmap(angle: Int): Bitmap {
     val matrix = Matrix()
@@ -25,14 +20,4 @@ fun Bitmap.toGrayscale(): Bitmap? {
     paint.colorFilter = f
     c.drawBitmap(this, 0f, 0f, paint)
     return bmpGrayscale
-}
-
-internal fun Bitmap.scaledBitmap(width: Int, height: Int): Bitmap {
-    val m = Matrix()
-    m.setRectToRect(
-        RectF(0f, 0f, this.width.toFloat(), this.height.toFloat()),
-        RectF(0f, 0f, width.toFloat(), height.toFloat()),
-        Matrix.ScaleToFit.CENTER
-    )
-    return Bitmap.createBitmap(this, 0, 0, this.width, this.height, m, true)
 }

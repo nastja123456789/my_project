@@ -2,9 +2,6 @@ package ru.ytken.a464_project_watermarks.ui.fragments
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.graphics.PointF
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -13,32 +10,22 @@ import androidx.navigation.fragment.findNavController
 import io.scanbot.sdk.ScanbotSDK
 import io.scanbot.sdk.core.contourdetector.ContourDetector
 import io.scanbot.sdk.core.contourdetector.DetectionStatus
-import io.scanbot.sdk.core.contourdetector.Line2D
 import io.scanbot.sdk.persistence.Page
 import io.scanbot.sdk.persistence.PageFileStorage
-import io.scanbot.sdk.process.CropOperation
 import io.scanbot.sdk.process.ImageFilterType
 import io.scanbot.sdk.process.ImageProcessor
 import io.scanbot.sdk.ui.view.edit.CroppingActivity
-import io.scanbot.sdk.ui.view.edit.configuration.CroppingAccessibilityConfiguration
 import io.scanbot.sdk.ui.view.edit.configuration.CroppingConfiguration
-import kotlinx.android.synthetic.main.fragment_image_result.*
 import kotlinx.android.synthetic.main.fragment_photo_crop.*
 import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.ui.MainViewModel
-import java.util.concurrent.Executors
-import kotlin.math.roundToInt
 
 internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
 
     private val vm: MainViewModel by activityViewModels()
 
-    private lateinit var originalBitmap: Bitmap
-
     private lateinit var imageProcessor: ImageProcessor
     private lateinit var contourDetector: ContourDetector
-    private var lastRotationEventTs = 0L
-    private var rotationDegrees = 0
 
     private var selectedImage: Bitmap? = null
     private lateinit var cropping: CroppingConfiguration
@@ -51,9 +38,6 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         pageFileStorage = scanbotSDK.createPageFileStorage()
         contourDetector = scanbotSDK.createContourDetector()
         imageProcessor = scanbotSDK.imageProcessor()
-        //val pageId = pageFileStorage.add(selectedImage!!)
-        //var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
-        //cropping = CroppingConfiguration(page)
         resultImageView.visibility = View.VISIBLE
         resultImageView.setImageBitmap(selectedImage)
         cropButton.setOnClickListener {
@@ -62,16 +46,7 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             cropping = CroppingConfiguration(page)
             val intent = CroppingActivity.newIntent(context!!, cropping)
             startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)
-            //crop()
         }
-
-
-//        rotateButton.setOnClickListener {
-//            rotatePreview()
-//        }
-//        cropButton.setOnClickListener {
-//            crop()
-//        }
         saveButton.setOnClickListener {
             findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
         }
@@ -90,8 +65,6 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
                 val page: String? = result.result!!.pageId
                 val image: Bitmap? = pageFileStorage.getImage(page!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
                 vm.setInitImage(image!!)
-                //imageViewResultImage.setImageBitmap(image)
-                //imageViewResultImage.visibility = View.VISIBLE
             }
             findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
         }

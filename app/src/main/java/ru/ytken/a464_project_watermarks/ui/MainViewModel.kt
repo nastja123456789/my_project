@@ -1,13 +1,11 @@
 package ru.ytken.a464_project_watermarks.ui
 
-import android.Manifest
-import android.content.DialogInterface
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.util.Log
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,26 +14,19 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-//import com.google.mlkit.vision.common.InputImage
-//import com.google.mlkit.vision.text.Text
-//import com.google.mlkit.vision.text.TextRecognition
-//import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-//import com.googlecode.tesseract.android.TessBaseAPI
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.MultiplePermissionsReport
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import ru.ytken.a464_project_watermarks.data.MainRepositoryImpl
+import ru.ytken.a464_project_watermarks.domain.models.Image
+import ru.ytken.a464_project_watermarks.domain.models.Status
+import ru.ytken.a464_project_watermarks.domain.usecase.GetImageUseCase
 import ru.ytken.a464_project_watermarks.rotateBitmap
-
-//import ru.ytken.a464_project_watermarks.rotateBitmap
-import java.io.InputStream
 
 class MainViewModel: ViewModel() {
     val LOGTAG = MainViewModel::class.simpleName
+
+    private val liveScanLettersText = MutableLiveData<String>()
+    val scanLettersText: LiveData<String> = liveScanLettersText
 
     private val liveInitImage = MutableLiveData<Bitmap>()
     val initImage: LiveData<Bitmap> = liveInitImage
@@ -46,16 +37,15 @@ class MainViewModel: ViewModel() {
     private val liveScanImage = MutableLiveData<Bitmap>()
     val scanImage: LiveData<Bitmap> = liveScanImage
 
-    private val liveScanLettersImage = MutableLiveData<Bitmap>()
-    val scanLettersImage: LiveData<Bitmap> = liveScanLettersImage
-
-    private val liveScanLettersText = MutableLiveData<String>()
-    val scanLettersText: LiveData<String> = liveScanLettersText
-
     private val liveHasText = MutableLiveData<Boolean>()
     val hasText: LiveData<Boolean> = liveHasText
 
     var lineBounds: ArrayList<Int> = ArrayList<Int>()
+
+    private lateinit var status: Status
+    private lateinit var image: Image
+    //private val repository = MainRepositoryImpl
+    //private val getImageUseCase = GetImageUseCase(repository)
 
     fun findTextInBitmap() {
         var imageBitmap = liveInitImage.value!!
@@ -119,10 +109,6 @@ class MainViewModel: ViewModel() {
 
     fun setScanImageToInit() {
         liveScanImage.value = highlightedImage.value
-    }
-
-    fun setCropImage(bitmap: Bitmap) {
-        liveInitImage.value = bitmap
     }
 
     fun setLetterText(text: String) {
