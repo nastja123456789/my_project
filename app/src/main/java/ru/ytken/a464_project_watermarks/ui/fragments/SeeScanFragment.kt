@@ -16,19 +16,17 @@ import kotlinx.android.synthetic.main.fragment_scan_result.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.R
+import ru.ytken.a464_project_watermarks.Watermarks
 import ru.ytken.a464_project_watermarks.toGrayscale
 import ru.ytken.a464_project_watermarks.ui.MainViewModel
 import kotlin.math.sqrt
 
 class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
     private val vm: MainViewModel by activityViewModels()
-    val TAG = SeeScanFragment::class.simpleName
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val fileWithImage = vm.scanImage.value
-        Log.d(TAG, "fileWithImage=$fileWithImage")
         if (fileWithImage != null) {
             processImage(fileWithImage.toGrayscale()!!)
         }
@@ -44,7 +42,6 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
             clipboard.setPrimaryClip(clip)
             Toast.makeText(activity, getString(R.string.copyToBuffer), Toast.LENGTH_SHORT).show()
         }
-
     }
 
     private fun processImage(fileWithImage: Bitmap) = lifecycleScope.launch(Dispatchers.Main) {
@@ -54,9 +51,7 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
 
         fileWithImage?.let {
             imageViewSkanned.setImageBitmap(vm.initImage.value)
-
             imageButtonNoSkan.visibility = View.VISIBLE
-
             val watermarkSize = 24
             var resMatrix = ""
             val lineBounds = vm.lineBounds
@@ -65,7 +60,7 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
                 val lineIntervals = ArrayList<Int>()
                 for (i in 1 until lineBounds.size)
                     lineIntervals.add(lineBounds[i]-lineBounds[i-1])
-                val watermark = getWatermark(lineIntervals)
+                val watermark = Watermarks.getWatermark(lineIntervals)
                 if (watermark != null) {
                     setTextButton(watermark.subSequence(0,watermarkSize).toString())
                     vm.setLetterText(resMatrix)
@@ -78,36 +73,6 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
             progressBarWaitForScan.visibility = View.INVISIBLE
             textViewProgress.visibility = View.INVISIBLE
         }
-    }
-
-    fun getWatermark(lineBounds: ArrayList<Int>): String? {
-        val meanInterval = lineBounds.mean()
-        Log.d("SeeScanActivity", "meanInterval = $meanInterval")
-        val stdIntervals = lineBounds.std()
-        Log.d("SeeScanActivity", "stdInterval = $stdIntervals")
-        Log.d("SeeScanActivity", "Intervals: ${lineBounds.joinToString()}")
-
-        if (stdIntervals < 0.4) return null
-
-        val maxInterval = lineBounds.maxOrNull() ?: 0
-        var watermark = ""
-
-        for (i in lineBounds)
-            if (i > meanInterval + stdIntervals*0.7)
-                watermark += "1"
-            else
-                watermark += 0
-        return watermark
-    }
-
-    private fun ArrayList<Int>.mean(): Float = this.sum().toFloat() / this.size
-
-    private fun ArrayList<Int>.std(): Float {
-        val mean = this.mean()
-        var sqSum = 0f
-        for (i in this) sqSum += (i - mean)*(i - mean)
-        sqSum /= this.size
-        return sqrt(sqSum)
     }
 
     private fun setTextButton(text: String) {

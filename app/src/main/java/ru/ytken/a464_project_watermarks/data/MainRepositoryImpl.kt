@@ -11,8 +11,6 @@ import ru.ytken.a464_project_watermarks.domain.repository.MainRepository
 class MainRepositoryImpl: MainRepository {
 
     override fun getImage(): Image {
-        val w:Int = WindowManager.LayoutParams.WRAP_CONTENT
-        val h: Int = WindowManager.LayoutParams.WRAP_CONTENT
 
         val width: Int = 400
         val height: Int = 400

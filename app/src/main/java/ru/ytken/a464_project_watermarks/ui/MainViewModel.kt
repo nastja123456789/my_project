@@ -44,8 +44,8 @@ class MainViewModel: ViewModel() {
 
     private lateinit var status: Status
     private lateinit var image: Image
-    //private val repository = MainRepositoryImpl
-    //private val getImageUseCase = GetImageUseCase(repository)
+    private val repository = MainRepositoryImpl()
+    private val getImageUseCase = GetImageUseCase(repository)
 
     fun findTextInBitmap() {
         var imageBitmap = liveInitImage.value!!

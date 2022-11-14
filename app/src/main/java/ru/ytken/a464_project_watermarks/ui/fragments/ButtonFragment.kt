@@ -26,10 +26,7 @@ class ButtonFragment() : Fragment(
 ) {
 
     private val DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT = 100
-    private val TAG = ButtonFragment::class.simpleName
-
     private val vm: MainViewModel by activityViewModels()
-
     private val viewModel: MainViewModel by lazy {
         ViewModelProvider(
             this,
@@ -40,21 +37,12 @@ class ButtonFragment() : Fragment(
     private lateinit var pageFileStorage: PageFileStorage
 
     private lateinit var pageProcess: PageProcessor
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val scanbotSDK = ScanbotSDK(requireActivity())
-        pageFileStorage = scanbotSDK.createPageFileStorage()
-        pageProcess = scanbotSDK.createPageProcessor()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        createSDK()
         buttonTakePhoto.setOnClickListener {
-            val cameraConfiguration = DocumentScannerConfiguration()
-            val intent = DocumentScannerActivity.newIntent(context!!, cameraConfiguration)
-            startActivityForResult(intent, DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT)
+            takePhoto()
         }
 
         buttonChoosePhotoFromStorage.setOnClickListener {
@@ -64,6 +52,18 @@ class ButtonFragment() : Fragment(
             progressBarWaitForResult.visibility = View.VISIBLE
             }
         }
+
+    private fun createSDK() {
+        val scanbotSDK = ScanbotSDK(requireActivity())
+        pageFileStorage = scanbotSDK.createPageFileStorage()
+        pageProcess = scanbotSDK.createPageProcessor()
+    }
+
+    private fun takePhoto() {
+        val cameraConfiguration = DocumentScannerConfiguration()
+        val intent = DocumentScannerActivity.newIntent(context!!, cameraConfiguration)
+        startActivityForResult(intent, DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT)
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

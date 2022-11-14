@@ -34,18 +34,11 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         selectedImage = vm.initImage.value
-        val scanbotSDK = ScanbotSDK(context!!)
-        pageFileStorage = scanbotSDK.createPageFileStorage()
-        contourDetector = scanbotSDK.createContourDetector()
-        imageProcessor = scanbotSDK.imageProcessor()
+        createSDK()
         resultImageView.visibility = View.VISIBLE
         resultImageView.setImageBitmap(selectedImage)
         cropButton.setOnClickListener {
-            val pageId = pageFileStorage.add(selectedImage!!)
-            var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
-            cropping = CroppingConfiguration(page)
-            val intent = CroppingActivity.newIntent(context!!, cropping)
-            startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)
+            crop()
         }
         saveButton.setOnClickListener {
             findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
@@ -54,7 +47,21 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         imageButtonCloseCrop.setOnClickListener {
             findNavController().popBackStack()
         }
+    }
 
+    private fun createSDK() {
+        val scanbotSDK = ScanbotSDK(context!!)
+        pageFileStorage = scanbotSDK.createPageFileStorage()
+        contourDetector = scanbotSDK.createContourDetector()
+        imageProcessor = scanbotSDK.imageProcessor()
+    }
+
+    private fun crop() {
+        val pageId = pageFileStorage.add(selectedImage!!)
+        var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+        cropping = CroppingConfiguration(page)
+        val intent = CroppingActivity.newIntent(context!!, cropping)
+        startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
