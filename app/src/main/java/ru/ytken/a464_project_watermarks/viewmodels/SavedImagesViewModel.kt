@@ -10,7 +10,6 @@ import ru.ytken.a464_project_watermarks.utilities.Coroutines
 class SavedImagesViewModel(private val savedImagesRepository: SavedImageRepository) : ViewModel() {
     private val savedImagesDataState = MutableLiveData<SavedImagesDataState>()
     val savedImagesUiState: LiveData<SavedImagesDataState> get() = savedImagesDataState
-    val inter:Int = 100000
     fun loadSavedImages() {
         Coroutines.io {
             runCatching {
