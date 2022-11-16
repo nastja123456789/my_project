@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,15 +15,9 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import ru.ytken.a464_project_watermarks.data.MainRepositoryImpl
-import ru.ytken.a464_project_watermarks.domain.models.Image
-import ru.ytken.a464_project_watermarks.domain.models.Status
-import ru.ytken.a464_project_watermarks.domain.usecase.GetImageUseCase
 import ru.ytken.a464_project_watermarks.rotateBitmap
 
 class MainViewModel: ViewModel() {
-    val LOGTAG = MainViewModel::class.simpleName
-
     private val liveScanLettersText = MutableLiveData<String>()
     val scanLettersText: LiveData<String> = liveScanLettersText
 
@@ -41,11 +34,6 @@ class MainViewModel: ViewModel() {
     val hasText: LiveData<Boolean> = liveHasText
 
     var lineBounds: ArrayList<Int> = ArrayList<Int>()
-
-    private lateinit var status: Status
-    private lateinit var image: Image
-    private val repository = MainRepositoryImpl()
-    private val getImageUseCase = GetImageUseCase(repository)
 
     fun findTextInBitmap() {
         var imageBitmap = liveInitImage.value!!
@@ -88,12 +76,11 @@ class MainViewModel: ViewModel() {
                                             shapeDrawable.draw(canvas)
                                         }
                                     }
-                                    Log.d(LOGTAG, "Текст распознан!")
                                     liveHasText.value = true
                                 } else {
-                                    Log.d(LOGTAG, "Текст не найден")
                                     liveHasText.value = false
                                 }
+
 
                                 liveInitImage.value = maxBitmap
                                 liveHighlightedImage.value = mutableImageBitmap
@@ -114,5 +101,4 @@ class MainViewModel: ViewModel() {
     fun setLetterText(text: String) {
         liveScanLettersText.value = text
     }
-
 }

@@ -27,20 +27,19 @@ class ButtonFragment() : Fragment(
 
     private val DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT = 100
     private val vm: MainViewModel by activityViewModels()
-    private val viewModel: MainViewModel by lazy {
-        ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        )[MainViewModel::class.java]
-    }
 
     private lateinit var pageFileStorage: PageFileStorage
 
     private lateinit var pageProcess: PageProcessor
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        createSDK()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        createSDK()
+
         buttonTakePhoto.setOnClickListener {
             takePhoto()
         }
@@ -49,7 +48,7 @@ class ButtonFragment() : Fragment(
                 galleryImageLauncher.launch(Unit)
                 buttonChoosePhotoFromStorage.visibility = View.INVISIBLE
                 buttonTakePhoto.visibility = View.INVISIBLE
-            progressBarWaitForResult.visibility = View.VISIBLE
+                progressBarWaitForResult.visibility = View.VISIBLE
             }
         }
 

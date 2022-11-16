@@ -7,7 +7,6 @@ object Watermarks {
         val meanInterval = lineBounds.mean()
         val stdIntervals = lineBounds.std()
         if (stdIntervals < 0.4) return null
-        val maxInterval = lineBounds.maxOrNull() ?: 0
         var watermark = ""
         for (i in lineBounds)
             if (i > meanInterval + stdIntervals*0.7)

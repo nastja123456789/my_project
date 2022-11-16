@@ -3,6 +3,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -37,6 +38,7 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         createSDK()
         resultImageView.visibility = View.VISIBLE
         resultImageView.setImageBitmap(selectedImage)
+        Log.d("because","why")
         cropButton.setOnClickListener {
             crop()
         }
@@ -79,5 +81,9 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
 
     companion object {
         val CROP_UI_REQUEST_CODE_CONSTANT = 100
+        fun newInstance(): PhotoCropFragment {
+            Log.d("crop activity","we go to crop activity")
+            return PhotoCropFragment()
+        }
     }
 }
