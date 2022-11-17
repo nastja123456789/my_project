@@ -1,6 +1,7 @@
 package ru.ytken.a464_project_watermarks.viewmodels
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,14 +16,17 @@ class SavedImagesViewModel(private val savedImagesRepository: SavedImageReposito
             runCatching {
                 emitSavedImagesUiState(isLoading = true)
                 savedImagesRepository.loadSavedImage()
-            }.onSuccess { savedImages->
-                if (savedImages.equals(null)){
-                    emitSavedImagesUiState(error = "No image found")
-                }else{
-                    emitSavedImagesUiState(savedImages=savedImages)
+            }
+                .onSuccess {
+                        savedImages->
+                if (savedImages!!.byteCount>1024*1024*100){
+                    emitSavedImagesUiState(error = "error")
+                }else
+                {
+                    emitSavedImagesUiState(savedImages=savedImages, error = "loading", isLoading = true)
                 }
             }.onFailure {
-                emitSavedImagesUiState(error = it.message.toString())
+                        emitSavedImagesUiState(isLoading = false)
             }
         }
     }

@@ -1,42 +1,48 @@
 package ru.ytken.a464_project_watermarks.repository
 
+import android.R.attr
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
+import io.scanbot.sdk.ScanbotSDK
 import io.scanbot.sdk.core.contourdetector.DetectionStatus
 import io.scanbot.sdk.docprocessing.PageProcessor
 import io.scanbot.sdk.persistence.Page
 import io.scanbot.sdk.persistence.PageFileStorage
 import io.scanbot.sdk.process.ImageFilterType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import ru.ytken.a464_project_watermarks.ui.MainActivity
 
 class SavedImageRepositoryImpl(
-    context: Context,
+    private val context: Context,
+    private var scanbotSDK: ScanbotSDK,
+    private var pageFileStorage: PageFileStorage,
+    private var pageProcessor: PageProcessor,
+    private var bitmap: Bitmap? = null
 ): SavedImageRepository {
 
-    companion object {
-        private lateinit var pageFileStorage: PageFileStorage
-        private lateinit var pageProcessor: PageProcessor
-        private lateinit var bitmap: Bitmap
-    }
+    override suspend fun loadSavedImage(): Bitmap? {
+        scanbotSDK = ScanbotSDK(context)
+        pageFileStorage = scanbotSDK.createPageFileStorage()
+        var initialBitmap: Bitmap?
+            val notOrNot: String
+            notOrNot = pageFileStorage.add(bitmap!!)
+            val page = withContext(Dispatchers.IO) {
+                val pageId = notOrNot
+                var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+                page = pageProcessor.detectDocument(page)
+                page
+            }
 
-    override suspend fun loadSavedImage(): Bitmap {
-
-        val initialBitmap: Bitmap
-        val page = withContext(Dispatchers.Default) {
-            val pageId = pageFileStorage.add(bitmap)
-            var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
-            page = pageProcessor.detectDocument(page)
-            page
-        }
-
-        withContext(Dispatchers.Main) {
-            val image = pageFileStorage.getImage(
-                page.pageId,
-                PageFileStorage.PageFileType.DOCUMENT //cropped image
-            )
-            initialBitmap = image!!
-        }
+            withContext(Dispatchers.IO) {
+                val image = pageFileStorage.getImage(
+                    page.pageId,
+                    PageFileStorage.PageFileType.DOCUMENT //cropped image
+                )
+                initialBitmap = image
+            }
         return initialBitmap
     }
 }

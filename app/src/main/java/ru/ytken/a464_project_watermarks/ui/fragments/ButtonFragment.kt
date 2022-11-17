@@ -8,7 +8,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import io.scanbot.sdk.ScanbotSDK
 import io.scanbot.sdk.docprocessing.PageProcessor
@@ -27,13 +26,15 @@ class ButtonFragment() : Fragment(
 
     private val DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT = 100
     private val vm: MainViewModel by activityViewModels()
-
     private lateinit var pageFileStorage: PageFileStorage
-
     private lateinit var pageProcess: PageProcessor
+    //private lateinit var repository: MakeImageRepository
+    //private lateinit var makeModel: MakeImageViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+      //  repository = MakeImageRepositoryImpl(requireActivity())
+      //  makeModel = ViewModelProvider(requireActivity(), MakeImageFactory(repository))[MakeImageViewModel::class.java]
         createSDK()
     }
 
@@ -45,12 +46,12 @@ class ButtonFragment() : Fragment(
         }
 
         buttonChoosePhotoFromStorage.setOnClickListener {
-                galleryImageLauncher.launch(Unit)
-                buttonChoosePhotoFromStorage.visibility = View.INVISIBLE
-                buttonTakePhoto.visibility = View.INVISIBLE
-                progressBarWaitForResult.visibility = View.VISIBLE
-            }
+            galleryImageLauncher.launch(Unit)
+            buttonChoosePhotoFromStorage.visibility = View.INVISIBLE
+            buttonTakePhoto.visibility = View.INVISIBLE
+            progressBarWaitForResult.visibility = View.VISIBLE
         }
+    }
 
     private fun createSDK() {
         val scanbotSDK = ScanbotSDK(requireActivity())
@@ -74,7 +75,15 @@ class ButtonFragment() : Fragment(
                         val snappedPages: List<Page>? = result.result
                         val pageId = snappedPages?.get(0)?.pageId
                         val image: Bitmap? = pageFileStorage.getImage(pageId!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
-                        vm.setInitImage(image!!)
+                        //vm.setInitImage(image!!)
+        //                makeModel.saveImage(image!!)
+        //                makeModel.saveImageUIState.observe(this) {
+        //                    val saveImagesDataState = it ?: return@observe
+        //                    if (saveImagesDataState.isLoading) {
+                                //saveImagesDataState.uri = image
+                                vm.setInitImage(image!!)
+        //                    }
+        //                }
                     }
                     findNavController().navigate(R.id.action_mainFragment_to_imageResultFragment)
                 }

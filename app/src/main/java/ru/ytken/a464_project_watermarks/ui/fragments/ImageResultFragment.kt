@@ -15,17 +15,16 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressBarWaitForImage.visibility = View.VISIBLE
-        imageViewResultImage.visibility = View.INVISIBLE
 
         imageButtonClose.setOnClickListener { findNavController().popBackStack() }
 
         vm.findTextInBitmap()
-
+        progressBarWaitForImage.visibility = View.VISIBLE
+        imageViewResultImage.visibility = View.INVISIBLE
         vm.highlightedImage.observe(viewLifecycleOwner) {
-            progressBarWaitForImage.visibility = View.INVISIBLE
             imageViewResultImage.setImageBitmap(it)
             imageViewResultImage.visibility = View.VISIBLE
+            progressBarWaitForImage.visibility = View.INVISIBLE
             if (vm.hasText.value == false) {
                 Toast.makeText(activity, getString(R.string.text_not_found), Toast.LENGTH_SHORT).show()
             } else {
@@ -35,11 +34,6 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
                     findNavController().navigate(R.id.action_imageResultFragment_to_seeScanFragment)
                 }
             }
-        }
-    }
-    companion object {
-        fun newInstance(): ImageResultFragment {
-            return ImageResultFragment()
         }
     }
 }

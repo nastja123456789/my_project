@@ -80,4 +80,9 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
         imageViewCopyToBuffer.visibility = View.VISIBLE
         textViewRecognizedText.text = text
     }
+
+    override fun onDestroy() {
+        vm.setImageToNull()
+        super.onDestroy()
+    }
 }

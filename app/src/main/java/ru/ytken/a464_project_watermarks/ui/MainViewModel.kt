@@ -90,7 +90,7 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    fun setInitImage(bitmap: Bitmap) {
+    fun setInitImage(bitmap: Bitmap?) {
         liveInitImage.value = bitmap
     }
 
@@ -100,5 +100,8 @@ class MainViewModel: ViewModel() {
 
     fun setLetterText(text: String) {
         liveScanLettersText.value = text
+    }
+    fun setImageToNull() {
+        liveHighlightedImage.value = null
     }
 }

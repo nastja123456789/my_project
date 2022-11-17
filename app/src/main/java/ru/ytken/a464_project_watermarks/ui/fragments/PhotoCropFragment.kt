@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -34,11 +35,13 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        selectedImage = vm.initImage.value
-        createSDK()
-        resultImageView.visibility = View.VISIBLE
-        resultImageView.setImageBitmap(selectedImage)
-        Log.d("because","why")
+            selectedImage = vm.initImage.value
+            createSDK()
+            resultImageView.visibility = View.VISIBLE
+            resultImageView.setImageBitmap(selectedImage)
+        if (selectedImage == null) {
+            Toast.makeText(context, "Загрузите другой файл!", Toast.LENGTH_SHORT).show()
+        }
         cropButton.setOnClickListener {
             crop()
         }
@@ -82,7 +85,6 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
     companion object {
         val CROP_UI_REQUEST_CODE_CONSTANT = 100
         fun newInstance(): PhotoCropFragment {
-            Log.d("crop activity","we go to crop activity")
             return PhotoCropFragment()
         }
     }
