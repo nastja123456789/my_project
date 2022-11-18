@@ -2,8 +2,6 @@ package ru.ytken.a464_project_watermarks.ui
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -20,11 +18,8 @@ import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.ImportImageContract
 import ru.ytken.a464_project_watermarks.ManifestPermission
 import ru.ytken.a464_project_watermarks.R
-
-import ru.ytken.a464_project_watermarks.repository.SavedImageRepository
 import ru.ytken.a464_project_watermarks.repository.SavedImageRepositoryImpl
 import ru.ytken.a464_project_watermarks.ui.fragments.PhotoCropFragment
-import ru.ytken.a464_project_watermarks.utilities.displayToast
 import ru.ytken.a464_project_watermarks.viewmodels.SavedImageFactory
 import ru.ytken.a464_project_watermarks.viewmodels.SavedImagesViewModel
 
@@ -49,15 +44,14 @@ class MainActivity : AppCompatActivity() {
         pageProcess = scanbotSDK.createPageProcessor()
         galleryImageLauncher = registerForActivityResult(ImportImageContract(this)){
                 resultEntity ->
-            bm = resultEntity!!
-            val repository = SavedImageRepositoryImpl(this,scanbotSDK, pageFileStorage, pageProcess, bm)
+            val repository = SavedImageRepositoryImpl(this,scanbotSDK, pageFileStorage, pageProcess, resultEntity)
             val savedModel = ViewModelProvider(this, SavedImageFactory(repository))[SavedImagesViewModel::class.java]
             lifecycleScope.launch(Dispatchers.Main) {
                 savedModel.loadSavedImages()
                 savedModel.savedImagesUiState.observe(this@MainActivity) {
                     val savedImagesDataState = it ?: return@observe
                     if (savedImagesDataState.isLoading) {
-                        if (resultEntity.byteCount<1024*1024*100) {
+                        if (resultEntity!!.byteCount<1024*1024*100) {
                             savedImagesDataState.savedImages = resultEntity
                             viewModel.setInitImage(resultEntity)
                         }else {

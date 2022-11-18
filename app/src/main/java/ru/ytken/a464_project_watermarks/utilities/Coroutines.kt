@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object Coroutines {
-    fun io(work: suspend (()-> Unit)) = CoroutineScope(Dispatchers.Default).launch {
+    fun io(work: suspend (()-> Unit)) = CoroutineScope(Dispatchers.Main).launch {
         work()
     }
 }

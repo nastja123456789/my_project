@@ -1,7 +1,6 @@
 package ru.ytken.a464_project_watermarks.ui.fragments
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
@@ -28,13 +27,9 @@ class ButtonFragment() : Fragment(
     private val vm: MainViewModel by activityViewModels()
     private lateinit var pageFileStorage: PageFileStorage
     private lateinit var pageProcess: PageProcessor
-    //private lateinit var repository: MakeImageRepository
-    //private lateinit var makeModel: MakeImageViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-      //  repository = MakeImageRepositoryImpl(requireActivity())
-      //  makeModel = ViewModelProvider(requireActivity(), MakeImageFactory(repository))[MakeImageViewModel::class.java]
         createSDK()
     }
 
@@ -74,16 +69,8 @@ class ButtonFragment() : Fragment(
                     if (result.resultOk) {
                         val snappedPages: List<Page>? = result.result
                         val pageId = snappedPages?.get(0)?.pageId
-                        val image: Bitmap? = pageFileStorage.getImage(pageId!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
-                        //vm.setInitImage(image!!)
-        //                makeModel.saveImage(image!!)
-        //                makeModel.saveImageUIState.observe(this) {
-        //                    val saveImagesDataState = it ?: return@observe
-        //                    if (saveImagesDataState.isLoading) {
-                                //saveImagesDataState.uri = image
+                        val image = pageFileStorage.getImage(pageId!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
                                 vm.setInitImage(image!!)
-        //                    }
-        //                }
                     }
                     findNavController().navigate(R.id.action_mainFragment_to_imageResultFragment)
                 }

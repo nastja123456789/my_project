@@ -102,6 +102,8 @@ class MainViewModel: ViewModel() {
         liveScanLettersText.value = text
     }
     fun setImageToNull() {
+        liveInitImage.value = null
         liveHighlightedImage.value = null
+        liveScanImage.value = null
     }
 }
