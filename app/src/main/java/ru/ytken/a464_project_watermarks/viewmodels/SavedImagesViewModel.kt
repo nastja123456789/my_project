@@ -20,13 +20,19 @@ class SavedImagesViewModel(private val savedImagesRepository: SavedImageReposito
                 .onSuccess {
                         savedImages->
                 if (savedImages!!.byteCount>1024*1024*100){
-                    emitSavedImagesUiState(error = "error")
-                }else
+                    emitSavedImagesUiState(savedImages=null, error = "loading", isLoading = true)
+                    Log.d("bigger","bigger")
+                } else if (savedImages==null) {
+                    Log.d("nulll","nulll")
+                    emitSavedImagesUiState(savedImages = null)
+                }
+                else
                 {
                     emitSavedImagesUiState(savedImages=savedImages, error = "loading", isLoading = true)
+                    Log.d("to end","to end")
                 }
             }.onFailure {
-                        emitSavedImagesUiState(isLoading = false)
+                    emitSavedImagesUiState(isLoading = false)
             }
         }
     }

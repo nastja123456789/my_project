@@ -18,8 +18,8 @@ import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.Watermarks
 import ru.ytken.a464_project_watermarks.toGrayscale
+import ru.ytken.a464_project_watermarks.ui.MainActivity.Companion.pageFileStorage
 import ru.ytken.a464_project_watermarks.ui.MainViewModel
-import kotlin.math.sqrt
 
 class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
     private val vm: MainViewModel by activityViewModels()
@@ -83,6 +83,8 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
 
     override fun onDestroy() {
         vm.setImageToNull()
+        Log.d("new delete","new delete")
+        pageFileStorage.removeAll()
         super.onDestroy()
     }
 }

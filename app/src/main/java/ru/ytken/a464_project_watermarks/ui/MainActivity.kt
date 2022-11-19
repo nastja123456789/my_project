@@ -2,6 +2,7 @@ package ru.ytken.a464_project_watermarks.ui
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -51,18 +52,20 @@ class MainActivity : AppCompatActivity() {
                 savedModel.savedImagesUiState.observe(this@MainActivity) {
                     val savedImagesDataState = it ?: return@observe
                     if (savedImagesDataState.isLoading) {
-                        if (resultEntity!!.byteCount<1024*1024*100) {
+                        if (resultEntity!!.byteCount<1024*1024*100 && savedImagesDataState.error=="loading") {
                             savedImagesDataState.savedImages = resultEntity
                             viewModel.setInitImage(resultEntity)
-                        }else {
+                        } else if (savedImagesDataState.error == "loading" && resultEntity!!.byteCount>1024*1024*100) {
                             savedImagesDataState.savedImages = null
                             viewModel.setInitImage(null)
+                        } else if (savedImagesDataState.error == "error") {
                         }
-                   }
+                        else {
+                            savedImagesDataState.savedImages = resultEntity
+                            viewModel.setInitImage(resultEntity)
+                        }
+                    }
                 }
-            }
-            lifecycleScope.launch(Dispatchers.Main) {
-                PhotoCropFragment.newInstance()
                 findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)
             }
         }
@@ -74,5 +77,6 @@ class MainActivity : AppCompatActivity() {
         lateinit var pageFileStorage: PageFileStorage
         lateinit var pageProcess: PageProcessor
         lateinit var bm: Bitmap
+        var ii: Int = 0
     }
 }

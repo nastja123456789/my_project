@@ -27,6 +27,7 @@ class ButtonFragment() : Fragment(
     private val vm: MainViewModel by activityViewModels()
     private lateinit var pageFileStorage: PageFileStorage
     private lateinit var pageProcess: PageProcessor
+    var pageId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,15 +63,17 @@ class ButtonFragment() : Fragment(
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (resultCode == AppCompatActivity.RESULT_OK) {
             when (requestCode) {
                 DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT -> {
                     val result: DocumentScannerActivity.Result = DocumentScannerActivity.extractResult(resultCode, data)
                     if (result.resultOk) {
                         val snappedPages: List<Page>? = result.result
-                        val pageId = snappedPages?.get(0)?.pageId
+                        pageId = snappedPages?.get(0)?.pageId
                         val image = pageFileStorage.getImage(pageId!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
-                                vm.setInitImage(image!!)
+                        vm.setInitImage(image!!)
+                        pageFileStorage.remove(pageId!!)
                     }
                     findNavController().navigate(R.id.action_mainFragment_to_imageResultFragment)
                 }

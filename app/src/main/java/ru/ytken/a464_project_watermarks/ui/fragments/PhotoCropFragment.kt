@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.fragment_photo_crop.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.R
+import ru.ytken.a464_project_watermarks.ui.MainActivity
 import ru.ytken.a464_project_watermarks.ui.MainViewModel
 
 internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
@@ -53,10 +54,7 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             resultImageView.setImageBitmap(selectedImage)
         }
         cropButton.setOnClickListener {
-            //lifecycleScope.launch(Dispatchers.IO) {
-            Log.d("i should that i do","i should")
                 crop()
-            //}
         }
         saveButton.setOnClickListener {
             if (selectedImage!=null) {
@@ -67,6 +65,8 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         }
 
         imageButtonCloseCrop.setOnClickListener {
+            //findNavController().navigate(R.id.action_photoCropFragment_to_buttonFragment)
+            Log.d("back","back")
             findNavController().popBackStack()
         }
     }
@@ -79,35 +79,45 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
     }
 
     private fun crop() {
-        if (selectedImage!=null) {
-            Log.d("why","why you dp this")
-            val pageId = pageFileStorage.add(selectedImage!!)
+            if (selectedImage!=null) {
+                val pageId = pageFileStorage.add(selectedImage!!)
 
-            if (pageId==null) {
-                Log.d("no wtf"," no wtf")
-                Toast.makeText(context, "Загрузите другой файл!", Toast.LENGTH_SHORT).show()
-            } else {
-                var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
-                cropping = CroppingConfiguration(page)
-                val intent = CroppingActivity.newIntent(context!!, cropping)
-                startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)
+                if (pageId==null) {
+                    Toast.makeText(context, "Загрузите новый файл!", Toast.LENGTH_SHORT).show()
+                } else {
+                    var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+
+                    try {
+                        cropping = CroppingConfiguration(page)
+                        val intent = CroppingActivity.newIntent(context!!, cropping)
+                        startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)
+                    } catch (e: RuntimeException) {
+                        findNavController().popBackStack()
+                        Toast.makeText(context, "sorry, session has been done", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
             }
-        }
-        else {
-            Toast.makeText(context, "Загрузите другой файл!", Toast.LENGTH_SHORT).show()
-            cropButton.visibility = View.INVISIBLE
-            saveButton.visibility = View.INVISIBLE
-        }
+            else {
+                Toast.makeText(context, "Загрузите другой файл!", Toast.LENGTH_SHORT).show()
+                cropButton.visibility = View.INVISIBLE
+                saveButton.visibility = View.INVISIBLE
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CROP_UI_REQUEST_CODE_CONSTANT) {
             val result = CroppingActivity.extractResult(resultCode, data)!!
-            if (result.resultOk) {
-                val page: String? = result.result!!.pageId
-                val image: Bitmap? = pageFileStorage.getImage(page!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
-                vm.setInitImage(image!!)
+            try {
+                if (result.resultOk) {
+                    val page: String? = result.result!!.pageId
+                    val image: Bitmap? = pageFileStorage.getImage(page!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
+                    vm.setInitImage(image!!)
+                }
+            } catch (e: RuntimeException) {
+                findNavController().popBackStack()
+                Toast.makeText(context, "sorry, session has been done", Toast.LENGTH_SHORT).show()
             }
             findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
         }
