@@ -45,10 +45,8 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             cropButton.visibility = View.INVISIBLE
             saveButton.visibility = View.INVISIBLE
             resultImageView.setImageBitmap(null)
-            Log.d("make","another")
         }
         else {
-            Log.d("make","something")
             createSDK()
             resultImageView.visibility = View.VISIBLE
             resultImageView.setImageBitmap(selectedImage)
@@ -65,8 +63,6 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         }
 
         imageButtonCloseCrop.setOnClickListener {
-            //findNavController().navigate(R.id.action_photoCropFragment_to_buttonFragment)
-            Log.d("back","back")
             findNavController().popBackStack()
         }
     }

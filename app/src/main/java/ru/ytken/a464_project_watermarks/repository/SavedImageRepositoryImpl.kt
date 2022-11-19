@@ -28,23 +28,18 @@ class SavedImageRepositoryImpl(
             notOrNot = pageFileStorage.add(bitmap!!)
             withContext(Dispatchers.IO) {
                 val pageId = notOrNot
-                Log.d("11","11")
                 var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
-                Log.d("22","22")
                 page = pageProcessor.detectDocument(page)
-                Log.d("33","33")
                 val image = pageFileStorage.getImage(
                     page.pageId,
                     PageFileStorage.PageFileType.DOCUMENT //cropped image
                 )
                 if (image!!.byteCount > 1024*1024*100) {
-                    Log.d("44", "44")
                     initialBitmap = null
                 } else {
                     initialBitmap = image
                 }
             }
-        Log.d("55","55")
         return initialBitmap
     }
 }

@@ -83,7 +83,6 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
 
     override fun onDestroy() {
         vm.setImageToNull()
-        Log.d("new delete","new delete")
         pageFileStorage.removeAll()
         super.onDestroy()
     }
