@@ -16,7 +16,7 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        imageButtonClose.setOnClickListener { findNavController().popBackStack() }
+        //imageButtonClose.setOnClickListener { findNavController().popBackStack() }
 
         vm.findTextInBitmap()
         progressBarWaitForImage.visibility = View.VISIBLE

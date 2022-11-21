@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         scanbotSDK = ScanbotSDK(this)
         pageFileStorage = scanbotSDK.createPageFileStorage()
         pageProcess = scanbotSDK.createPageProcessor()
+        var boo: Boolean = false
         galleryImageLauncher = registerForActivityResult(ImportImageContract(this)){
                 resultEntity ->
             val repository = SavedImageRepositoryImpl(this,scanbotSDK, pageFileStorage, pageProcess, resultEntity)
@@ -53,11 +54,13 @@ class MainActivity : AppCompatActivity() {
                     val savedImagesDataState = it ?: return@observe
                     if (savedImagesDataState.isLoading) {
                         if (resultEntity!!.byteCount<1024*1024*100 && savedImagesDataState.error=="loading") {
-                            savedImagesDataState.savedImages = resultEntity
-                            viewModel.setInitImage(resultEntity)
+                                savedImagesDataState.savedImages = resultEntity
+                                viewModel.setInitImage(resultEntity)
+                                findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)
                         } else if (savedImagesDataState.error == "loading" && resultEntity!!.byteCount>1024*1024*100) {
                             savedImagesDataState.savedImages = null
                             viewModel.setInitImage(null)
+                            findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)
                         } else if (savedImagesDataState.error == "error") {
                         }
                         else {
@@ -66,7 +69,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
-                findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)
             }
         }
     }

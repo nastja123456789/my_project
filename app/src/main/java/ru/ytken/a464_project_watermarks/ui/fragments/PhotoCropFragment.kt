@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -39,11 +40,13 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-            selectedImage = vm.initImage.value
+        selectedImage = vm.initImage.value
+        imageButtonCloseCrop.visibility = View.INVISIBLE
         if (selectedImage == null) {
             Toast.makeText(context, "Загрузите другой файл!", Toast.LENGTH_SHORT).show()
             cropButton.visibility = View.INVISIBLE
             saveButton.visibility = View.INVISIBLE
+            imageButtonCloseCrop.visibility = View.VISIBLE
             resultImageView.setImageBitmap(null)
         }
         else {
@@ -63,7 +66,8 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
         }
 
         imageButtonCloseCrop.setOnClickListener {
-            findNavController().popBackStack()
+            //findNavController().popBackStack()
+            finishAffinity(requireActivity())
         }
     }
 
