@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         scanbotSDK = ScanbotSDK(this)
         pageFileStorage = scanbotSDK.createPageFileStorage()
         pageProcess = scanbotSDK.createPageProcessor()
-        var boo: Boolean = false
+
         galleryImageLauncher = registerForActivityResult(ImportImageContract(this)){
                 resultEntity ->
             val repository = SavedImageRepositoryImpl(this,scanbotSDK, pageFileStorage, pageProcess, resultEntity)

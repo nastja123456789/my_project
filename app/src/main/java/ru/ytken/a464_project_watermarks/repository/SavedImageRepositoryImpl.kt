@@ -24,18 +24,18 @@ class SavedImageRepositoryImpl(
         scanbotSDK = ScanbotSDK(context)
         pageFileStorage = scanbotSDK.createPageFileStorage()
         var initialBitmap: Bitmap?
-            val notOrNot: String
-            notOrNot = pageFileStorage.add(bitmap!!)
-            withContext(Dispatchers.Main) {
-                val pageId = notOrNot
-                var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
-                page = pageProcessor.detectDocument(page)
-                val image = pageFileStorage.getImage(
-                    page.pageId,
-                    PageFileStorage.PageFileType.DOCUMENT //cropped image
-                )
-                initialBitmap = image
-            }
+        val notOrNot: String
+        notOrNot = pageFileStorage.add(bitmap!!)
+        withContext(Dispatchers.Main) {
+            val pageId = notOrNot
+            var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+            page = pageProcessor.detectDocument(page)
+            val image = pageFileStorage.getImage(
+                page.pageId,
+                PageFileStorage.PageFileType.DOCUMENT //cropped image
+            )
+            initialBitmap = image
+        }
         return initialBitmap
     }
 }
