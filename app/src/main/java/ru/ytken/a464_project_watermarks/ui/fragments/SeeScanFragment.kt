@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -19,6 +20,7 @@ import ru.ytken.a464_project_watermarks.Watermarks
 import ru.ytken.a464_project_watermarks.toGrayscale
 import ru.ytken.a464_project_watermarks.ui.MainActivity.Companion.pageFileStorage
 import ru.ytken.a464_project_watermarks.ui.MainViewModel
+import java.io.File
 
 class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
     private val vm: MainViewModel by activityViewModels()
@@ -84,6 +86,8 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
     override fun onDestroy() {
         vm.setImageToNull()
         pageFileStorage.removeAll()
+//        clearApplicationData()
         super.onDestroy()
     }
+
 }

@@ -23,6 +23,7 @@ import ru.ytken.a464_project_watermarks.repository.SavedImageRepositoryImpl
 import ru.ytken.a464_project_watermarks.ui.fragments.PhotoCropFragment
 import ru.ytken.a464_project_watermarks.viewmodels.SavedImageFactory
 import ru.ytken.a464_project_watermarks.viewmodels.SavedImagesViewModel
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -80,5 +81,38 @@ class MainActivity : AppCompatActivity() {
         lateinit var pageProcess: PageProcessor
         lateinit var bm: Bitmap
         var ii: Int = 0
+    }
+
+    override fun onDestroy() {
+        clearApplicationData()
+        super.onDestroy()
+    }
+
+    fun clearApplicationData() {
+        val cache: File = applicationContext.cacheDir
+        val appDir = File(cache.getParent())
+        if (appDir.exists()) {
+            val children: Array<String> = appDir.list()
+            for (s in children) {
+                if (s != "lib") {
+                    deleteDir(File(appDir, s))
+                    Log.i("EEEEEERRRRRRROOOOOOORRRR",
+                        "**************** File /data/data/APP_PACKAGE/$s DELETED *******************")
+                }
+            }
+        }
+    }
+
+    fun deleteDir(dir: File?): Boolean {
+        if (dir != null && dir.isDirectory()) {
+            val children: Array<String> = dir.list()
+            for (i in children.indices) {
+                val success = deleteDir(File(dir, children[i]))
+                if (!success) {
+                    return false
+                }
+            }
+        }
+        return dir!!.delete()
     }
 }
