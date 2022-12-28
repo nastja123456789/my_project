@@ -1,5 +1,7 @@
 package ru.ytken.a464_project_watermarks.viewmodels
 
+import android.content.ContentValues
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import ru.ytken.a464_project_watermarks.repository.SavedImageRepository
