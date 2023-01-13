@@ -1,5 +1,6 @@
 package ru.ytken.a464_project_watermarks.ui.fragments
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -16,9 +17,7 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //imageButtonClose.setOnClickListener { findNavController().popBackStack() }
-
-        vm.findTextInBitmap()
+        vm.findTextInBitmap(bitmap)
         progressBarWaitForImage.visibility = View.VISIBLE
         imageViewResultImage.visibility = View.INVISIBLE
         vm.highlightedImage.observe(viewLifecycleOwner) {
@@ -35,5 +34,8 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
                 }
             }
         }
+    }
+    companion object {
+        var bitmap: Bitmap?= null
     }
 }

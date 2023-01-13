@@ -125,8 +125,10 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
 
     companion object {
         val CROP_UI_REQUEST_CODE_CONSTANT = 100
+        var bitmap: Bitmap ?= null
         fun newInstance(): PhotoCropFragment {
             return PhotoCropFragment()
         }
+
     }
 }

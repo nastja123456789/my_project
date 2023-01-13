@@ -35,7 +35,7 @@ class MainViewModel: ViewModel() {
 
     var lineBounds: ArrayList<Int> = ArrayList<Int>()
 
-    fun findTextInBitmap() {
+    fun findTextInBitmap(bitmap: Bitmap?) {
         var imageBitmap = liveInitImage.value!!
         liveInitImage.value = imageBitmap
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)

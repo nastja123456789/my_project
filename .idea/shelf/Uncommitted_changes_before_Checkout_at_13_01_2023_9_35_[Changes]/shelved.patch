@@ -1,0 +1,447 @@
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ButtonFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.ui.fragments\r\n\r\nimport android.content.Intent\r\nimport android.graphics.BitmapFactory\r\nimport android.os.Bundle\r\nimport android.view.View\r\nimport androidx.appcompat.app.AppCompatActivity\r\nimport androidx.fragment.app.Fragment\r\nimport androidx.fragment.app.activityViewModels\r\nimport androidx.lifecycle.ViewModelProvider\r\nimport androidx.lifecycle.lifecycleScope\r\nimport androidx.navigation.fragment.findNavController\r\nimport io.scanbot.sdk.ScanbotSDK\r\nimport io.scanbot.sdk.docprocessing.PageProcessor\r\nimport io.scanbot.sdk.persistence.Page\r\nimport io.scanbot.sdk.persistence.PageFileStorage\r\nimport io.scanbot.sdk.ui.view.camera.DocumentScannerActivity\r\nimport io.scanbot.sdk.ui.view.camera.configuration.DocumentScannerConfiguration\r\nimport kotlinx.android.synthetic.main.fragment_button.*\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.launch\r\nimport ru.ytken.a464_project_watermarks.R\r\nimport ru.ytken.a464_project_watermarks.repository.TakedImageRepositoryImpl\r\nimport ru.ytken.a464_project_watermarks.ui.MainActivity.Companion.galleryImageLauncher\r\nimport ru.ytken.a464_project_watermarks.ui.MainViewModel\r\nimport ru.ytken.a464_project_watermarks.viewmodels.TakedImageFactory\r\nimport ru.ytken.a464_project_watermarks.viewmodels.TakedImagesViewModel\r\n\r\nclass ButtonFragment() : Fragment(\r\n    R.layout.fragment_button,\r\n) {\r\n\r\n    private val DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT = 100\r\n    private val vm: MainViewModel by activityViewModels()\r\n    //private lateinit var pageFileStorage: PageFileStorage\r\n    //private lateinit var pageProcess: PageProcessor\r\n    var pageId: String? = null\r\n\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        createSDK()\r\n    }\r\n\r\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\r\n        super.onViewCreated(view, savedInstanceState)\r\n\r\n        buttonTakePhoto.setOnClickListener {\r\n            takePhoto()\r\n        }\r\n\r\n        buttonChoosePhotoFromStorage.setOnClickListener {\r\n            galleryImageLauncher.launch(Unit)\r\n            buttonChoosePhotoFromStorage.visibility = View.INVISIBLE\r\n            buttonTakePhoto.visibility = View.INVISIBLE\r\n            progressBarWaitForResult.visibility = View.VISIBLE\r\n        }\r\n    }\r\n\r\n    private fun createSDK() {\r\n        scanbotSDK = ScanbotSDK(requireActivity())\r\n        pageFileStorage = scanbotSDK.createPageFileStorage()\r\n        pageProcess = scanbotSDK.createPageProcessor()\r\n    }\r\n\r\n    private fun takePhoto() {\r\n        val cameraConfiguration = DocumentScannerConfiguration()\r\n        val intent = DocumentScannerActivity.newIntent(context!!, cameraConfiguration)\r\n        startActivityForResult(intent, DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT)\r\n    }\r\n\r\n    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {\r\n        super.onActivityResult(requestCode, resultCode, data)\r\n\r\n        if (resultCode == AppCompatActivity.RESULT_OK) {\r\n            when (requestCode) {\r\n                DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT -> {\r\n                    buttonChoosePhotoFromStorage.visibility = View.INVISIBLE\r\n                    buttonTakePhoto.visibility = View.INVISIBLE\r\n                    progressBarWaitForResult.visibility = View.VISIBLE\r\n                    val takedRepository = TakedImageRepositoryImpl(context!!,pageFileStorage)\r\n                    val takedModel = ViewModelProvider(this, TakedImageFactory(takedRepository))[TakedImagesViewModel::class.java]\r\n                    lifecycleScope.launch(Dispatchers.Main) {\r\n                    takedModel.GetResultImage(data)\r\n                    takedModel.takedImagesUiState.observe(requireActivity()) {\r\n                        val takedImagesDataState = it ?: return@observe\r\n                        vm.setInitImage(takedImagesDataState.savedImages)\r\n                        findNavController().navigate(R.id.action_mainFragment_to_imageResultFragment)\r\n                    }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n    companion object{\r\n        lateinit var pageFileStorage: PageFileStorage\r\n        lateinit var scanbotSDK: ScanbotSDK\r\n        lateinit var pageProcess: PageProcessor\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ButtonFragment.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ButtonFragment.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ButtonFragment.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ButtonFragment.kt	(date 1673591740473)
+@@ -70,20 +70,22 @@
+ 
+     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+         super.onActivityResult(requestCode, resultCode, data)
+-
+         if (resultCode == AppCompatActivity.RESULT_OK) {
+             when (requestCode) {
+                 DOCUMENT_SCANNER_REQUEST_CODE_CONSTANT -> {
+                     buttonChoosePhotoFromStorage.visibility = View.INVISIBLE
+                     buttonTakePhoto.visibility = View.INVISIBLE
+                     progressBarWaitForResult.visibility = View.VISIBLE
+-                    val takedRepository = TakedImageRepositoryImpl(context!!,pageFileStorage)
+-                    val takedModel = ViewModelProvider(this, TakedImageFactory(takedRepository))[TakedImagesViewModel::class.java]
++                    val takeRepository = TakedImageRepositoryImpl(context!!,pageFileStorage)
++                    val takeModelViewModel: TakedImagesViewModel by viewModels{
++                        TakedImageFactory(takeRepository)
++                    }
+                     lifecycleScope.launch(Dispatchers.Main) {
+-                    takedModel.GetResultImage(data)
+-                    takedModel.takedImagesUiState.observe(requireActivity()) {
++                        takeModelViewModel.GetResultImage(data)
++                        takeModelViewModel.takedImagesUiState.observe(requireActivity()) {
+                         val takedImagesDataState = it ?: return@observe
+-                        vm.setInitImage(takedImagesDataState.savedImages)
++                            ImageResultFragment.bitmap = takedImagesDataState.savedImages
++                            //vm.setInitImage(takedImagesDataState.savedImages)
+                         findNavController().navigate(R.id.action_mainFragment_to_imageResultFragment)
+                     }
+                     }
+@@ -91,9 +93,11 @@
+             }
+         }
+     }
++
+     companion object{
+         lateinit var pageFileStorage: PageFileStorage
+         lateinit var scanbotSDK: ScanbotSDK
+         lateinit var pageProcess: PageProcessor
++        lateinit var galleryImageLauncher: ActivityResultLauncher<Unit>
+     }
+ }
+\ No newline at end of file
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/PhotoCropFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.ui.fragments\r\nimport android.content.Intent\r\nimport android.graphics.Bitmap\r\nimport android.graphics.BitmapFactory\r\nimport android.os.Bundle\r\nimport android.util.Log\r\nimport android.view.View\r\nimport android.widget.Toast\r\nimport androidx.core.app.ActivityCompat.finishAffinity\r\nimport androidx.fragment.app.Fragment\r\nimport androidx.fragment.app.activityViewModels\r\nimport androidx.lifecycle.lifecycleScope\r\nimport androidx.navigation.fragment.findNavController\r\nimport io.scanbot.sdk.ScanbotSDK\r\nimport io.scanbot.sdk.core.contourdetector.ContourDetector\r\nimport io.scanbot.sdk.core.contourdetector.DetectionStatus\r\nimport io.scanbot.sdk.persistence.Page\r\nimport io.scanbot.sdk.persistence.PageFileStorage\r\nimport io.scanbot.sdk.process.ImageFilterType\r\nimport io.scanbot.sdk.process.ImageProcessor\r\nimport io.scanbot.sdk.ui.view.edit.CroppingActivity\r\nimport io.scanbot.sdk.ui.view.edit.configuration.CroppingConfiguration\r\nimport kotlinx.android.synthetic.main.fragment_photo_crop.*\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.launch\r\nimport ru.ytken.a464_project_watermarks.R\r\nimport ru.ytken.a464_project_watermarks.ui.MainActivity\r\nimport ru.ytken.a464_project_watermarks.ui.MainViewModel\r\n\r\ninternal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {\r\n\r\n    private val vm: MainViewModel by activityViewModels()\r\n\r\n    private lateinit var imageProcessor: ImageProcessor\r\n    private lateinit var contourDetector: ContourDetector\r\n\r\n    private var selectedImage: Bitmap? = null\r\n    private lateinit var cropping: CroppingConfiguration\r\n    private lateinit var pageFileStorage: PageFileStorage\r\n\r\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\r\n        super.onViewCreated(view, savedInstanceState)\r\n        selectedImage = vm.initImage.value\r\n        imageButtonCloseCrop.visibility = View.INVISIBLE\r\n        if (selectedImage == null) {\r\n            Toast.makeText(context, \"Загрузите другой файл!\", Toast.LENGTH_SHORT).show()\r\n            cropButton.visibility = View.INVISIBLE\r\n            saveButton.visibility = View.INVISIBLE\r\n            imageButtonCloseCrop.visibility = View.VISIBLE\r\n            resultImageView.setImageBitmap(null)\r\n        }\r\n        else {\r\n            createSDK()\r\n            resultImageView.visibility = View.VISIBLE\r\n            resultImageView.setImageBitmap(selectedImage)\r\n        }\r\n        cropButton.setOnClickListener {\r\n                crop()\r\n        }\r\n        saveButton.setOnClickListener {\r\n            if (selectedImage!=null) {\r\n                findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)\r\n            } else {\r\n                findNavController().popBackStack()\r\n            }\r\n        }\r\n\r\n        imageButtonCloseCrop.setOnClickListener {\r\n            //findNavController().popBackStack()\r\n            finishAffinity(requireActivity())\r\n        }\r\n    }\r\n\r\n    private fun createSDK() {\r\n        val scanbotSDK = ScanbotSDK(context!!)\r\n        pageFileStorage = scanbotSDK.createPageFileStorage()\r\n        contourDetector = scanbotSDK.createContourDetector()\r\n        imageProcessor = scanbotSDK.imageProcessor()\r\n    }\r\n\r\n    private fun crop() {\r\n            if (selectedImage!=null) {\r\n                val pageId = pageFileStorage.add(selectedImage!!)\r\n\r\n                if (pageId==null) {\r\n                    Toast.makeText(context, \"Загрузите новый файл!\", Toast.LENGTH_SHORT).show()\r\n                } else {\r\n                    var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)\r\n\r\n                    try {\r\n                        cropping = CroppingConfiguration(page)\r\n                        val intent = CroppingActivity.newIntent(context!!, cropping)\r\n                        startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)\r\n                    } catch (e: RuntimeException) {\r\n                        findNavController().popBackStack()\r\n                        Toast.makeText(context, \"sorry, session has been done\", Toast.LENGTH_SHORT).show()\r\n                    }\r\n\r\n                }\r\n            }\r\n            else {\r\n                Toast.makeText(context, \"Загрузите другой файл!\", Toast.LENGTH_SHORT).show()\r\n                cropButton.visibility = View.INVISIBLE\r\n                saveButton.visibility = View.INVISIBLE\r\n            }\r\n    }\r\n\r\n    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {\r\n        super.onActivityResult(requestCode, resultCode, data)\r\n        if (requestCode == CROP_UI_REQUEST_CODE_CONSTANT) {\r\n            val result = CroppingActivity.extractResult(resultCode, data)!!\r\n            try {\r\n                if (result.resultOk) {\r\n                    val page: String? = result.result!!.pageId\r\n                    val image: Bitmap? = pageFileStorage.getImage(page!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())\r\n                    vm.setInitImage(image!!)\r\n                }\r\n            } catch (e: RuntimeException) {\r\n                findNavController().popBackStack()\r\n                Toast.makeText(context, \"sorry, session has been done\", Toast.LENGTH_SHORT).show()\r\n            }\r\n            findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)\r\n        }\r\n    }\r\n\r\n    companion object {\r\n        val CROP_UI_REQUEST_CODE_CONSTANT = 100\r\n        fun newInstance(): PhotoCropFragment {\r\n            return PhotoCropFragment()\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/PhotoCropFragment.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/PhotoCropFragment.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/PhotoCropFragment.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/PhotoCropFragment.kt	(date 1673117590732)
+@@ -125,8 +125,10 @@
+ 
+     companion object {
+         val CROP_UI_REQUEST_CODE_CONSTANT = 100
++        var bitmap: Bitmap ?= null
+         fun newInstance(): PhotoCropFragment {
+             return PhotoCropFragment()
+         }
++
+     }
+ }
+\ No newline at end of file
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepository.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.repository\r\n\r\nimport android.graphics.Bitmap\r\n\r\ninterface SavedImageRepository {\r\n    suspend fun loadSavedImage(): Bitmap?\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepository.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepository.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepository.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepository.kt	(date 1673117590701)
+@@ -3,5 +3,5 @@
+ import android.graphics.Bitmap
+ 
+ interface SavedImageRepository {
+-    suspend fun loadSavedImage(): Bitmap?
++    suspend fun loadSavedImage(bitmap: Bitmap): Bitmap?
+ }
+\ No newline at end of file
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/dependencyinjection/RepositoryModule.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.dependencyinjection\r\n\r\nimport org.koin.android.ext.koin.androidContext\r\nimport org.koin.dsl.module\r\nimport ru.ytken.a464_project_watermarks.repository.SavedImageRepository\r\nimport ru.ytken.a464_project_watermarks.repository.SavedImageRepositoryImpl\r\nimport ru.ytken.a464_project_watermarks.repository.TakedImageRepository\r\nimport ru.ytken.a464_project_watermarks.repository.TakedImageRepositoryImpl\r\nimport ru.ytken.a464_project_watermarks.ui.MainActivity\r\nimport ru.ytken.a464_project_watermarks.ui.fragments.ButtonFragment\r\n\r\nval repositorymodule = module {\r\n    factory<SavedImageRepository> { SavedImageRepositoryImpl(\r\n        androidContext(),\r\n        MainActivity.scanbotSDK,\r\n        MainActivity.pageFileStorage,\r\n        MainActivity.pageProcess,\r\n        MainActivity.bm\r\n    ) }\r\n    factory<TakedImageRepository> { TakedImageRepositoryImpl(\r\n        androidContext(),\r\n        ButtonFragment.pageFileStorage\r\n    ) }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/dependencyinjection/RepositoryModule.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/dependencyinjection/RepositoryModule.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/dependencyinjection/RepositoryModule.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/dependencyinjection/RepositoryModule.kt	(date 1673591740486)
+@@ -8,6 +8,7 @@
+ import ru.ytken.a464_project_watermarks.repository.TakedImageRepositoryImpl
+ import ru.ytken.a464_project_watermarks.ui.MainActivity
+ import ru.ytken.a464_project_watermarks.ui.fragments.ButtonFragment
++import ru.ytken.a464_project_watermarks.ui.fragments.ButtonFragment.Companion.pageProcess
+ 
+ val repositorymodule = module {
+     factory<SavedImageRepository> { SavedImageRepositoryImpl(
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepositoryImpl.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.repository\r\n\r\nimport android.content.Context\r\nimport android.graphics.Bitmap\r\nimport android.util.Log\r\nimport io.scanbot.sdk.ScanbotSDK\r\nimport io.scanbot.sdk.core.contourdetector.DetectionStatus\r\nimport io.scanbot.sdk.docprocessing.PageProcessor\r\nimport io.scanbot.sdk.persistence.Page\r\nimport io.scanbot.sdk.persistence.PageFileStorage\r\nimport io.scanbot.sdk.process.ImageFilterType\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.withContext\r\n\r\nclass SavedImageRepositoryImpl(\r\n    private val context: Context,\r\n    private var scanbotSDK: ScanbotSDK,\r\n    private var pageFileStorage: PageFileStorage,\r\n    private var pageProcessor: PageProcessor,\r\n    private var bitmap: Bitmap? = null\r\n): SavedImageRepository {\r\n\r\n    override suspend fun loadSavedImage(): Bitmap? {\r\n        scanbotSDK = ScanbotSDK(context)\r\n        pageFileStorage = scanbotSDK.createPageFileStorage()\r\n        var initialBitmap: Bitmap?\r\n        val notOrNot: String\r\n        notOrNot = pageFileStorage.add(bitmap!!)\r\n        withContext(Dispatchers.Main) {\r\n            val pageId = notOrNot\r\n            var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)\r\n            page = pageProcessor.detectDocument(page)\r\n            val image = pageFileStorage.getImage(\r\n                page.pageId,\r\n                PageFileStorage.PageFileType.DOCUMENT //cropped image\r\n            )\r\n            initialBitmap = image\r\n        }\r\n        return initialBitmap\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepositoryImpl.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepositoryImpl.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepositoryImpl.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/repository/SavedImageRepositoryImpl.kt	(date 1673591528555)
+@@ -2,7 +2,6 @@
+ 
+ import android.content.Context
+ import android.graphics.Bitmap
+-import android.util.Log
+ import io.scanbot.sdk.ScanbotSDK
+ import io.scanbot.sdk.core.contourdetector.DetectionStatus
+ import io.scanbot.sdk.docprocessing.PageProcessor
+@@ -17,18 +16,15 @@
+     private var scanbotSDK: ScanbotSDK,
+     private var pageFileStorage: PageFileStorage,
+     private var pageProcessor: PageProcessor,
+-    private var bitmap: Bitmap? = null
+ ): SavedImageRepository {
+ 
+-    override suspend fun loadSavedImage(): Bitmap? {
++    override suspend fun loadSavedImage(bitmap: Bitmap): Bitmap? {
+         scanbotSDK = ScanbotSDK(context)
+         pageFileStorage = scanbotSDK.createPageFileStorage()
+         var initialBitmap: Bitmap?
+-        val notOrNot: String
+-        notOrNot = pageFileStorage.add(bitmap!!)
++        val notOrNot: String = pageFileStorage.add(bitmap)
+         withContext(Dispatchers.Main) {
+-            val pageId = notOrNot
+-            var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
++            var page = Page(notOrNot, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+             page = pageProcessor.detectDocument(page)
+             val image = pageFileStorage.getImage(
+                 page.pageId,
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.ui\r\n\r\nimport android.graphics.Bitmap\r\nimport android.graphics.Canvas\r\nimport android.graphics.Paint\r\nimport android.graphics.drawable.ShapeDrawable\r\nimport android.graphics.drawable.shapes.RectShape\r\nimport androidx.lifecycle.LiveData\r\nimport androidx.lifecycle.MutableLiveData\r\nimport androidx.lifecycle.ViewModel\r\nimport androidx.lifecycle.viewModelScope\r\nimport com.google.mlkit.vision.common.InputImage\r\nimport com.google.mlkit.vision.text.Text\r\nimport com.google.mlkit.vision.text.TextRecognition\r\nimport com.google.mlkit.vision.text.latin.TextRecognizerOptions\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.async\r\nimport ru.ytken.a464_project_watermarks.rotateBitmap\r\n\r\nclass MainViewModel: ViewModel() {\r\n    private val liveScanLettersText = MutableLiveData<String>()\r\n    val scanLettersText: LiveData<String> = liveScanLettersText\r\n\r\n    private val liveInitImage = MutableLiveData<Bitmap>()\r\n    val initImage: LiveData<Bitmap> = liveInitImage\r\n\r\n    private val liveHighlightedImage = MutableLiveData<Bitmap>()\r\n    val highlightedImage: LiveData<Bitmap> = liveHighlightedImage\r\n\r\n    private val liveScanImage = MutableLiveData<Bitmap>()\r\n    val scanImage: LiveData<Bitmap> = liveScanImage\r\n\r\n    private val liveHasText = MutableLiveData<Boolean>()\r\n    val hasText: LiveData<Boolean> = liveHasText\r\n\r\n    var lineBounds: ArrayList<Int> = ArrayList<Int>()\r\n\r\n    fun findTextInBitmap() {\r\n        var imageBitmap = liveInitImage.value!!\r\n        liveInitImage.value = imageBitmap\r\n        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)\r\n        var maxBitmap: Bitmap = imageBitmap\r\n        var maxText: Int = 0\r\n        var maxBlocks: List<Text.TextBlock>? = null\r\n        lineBounds.clear()\r\n\r\n        for(i in 0..360 step 90 ) {\r\n            val copyBitmap = imageBitmap.rotateBitmap(i).copy(Bitmap.Config.ARGB_8888,false)\r\n            val image = InputImage.fromBitmap(copyBitmap, 0)\r\n                viewModelScope.async(Dispatchers.Default) {\r\n                    recognizer.process(image)\r\n                        .addOnSuccessListener { visionText ->\r\n                            if (visionText.text.length > maxText) {\r\n                                maxText = visionText.text.length\r\n                                maxBitmap = copyBitmap\r\n                                maxBlocks = visionText.textBlocks\r\n                            }\r\n                        }\r\n                        .addOnCompleteListener {\r\n                            if (i == 360) {\r\n                                val mutableImageBitmap = maxBitmap.copy(Bitmap.Config.ARGB_8888,true)\r\n\r\n                                val canvas = Canvas(mutableImageBitmap)\r\n                                var shapeDrawable = ShapeDrawable(RectShape())\r\n                                shapeDrawable.paint.style = Paint.Style.STROKE\r\n                                shapeDrawable.paint.strokeWidth = 10F\r\n\r\n                                if (maxBlocks != null) {\r\n                                    for (block in maxBlocks!!) {\r\n                                        for (line in block.lines) {\r\n\r\n                                            line.boundingBox?.let {\r\n                                                shapeDrawable.bounds = it\r\n                                                lineBounds.add(it.centerY())\r\n                                            }\r\n                                            shapeDrawable.draw(canvas)\r\n                                        }\r\n                                    }\r\n                                    liveHasText.value = true\r\n                                } else {\r\n                                    liveHasText.value = false\r\n                                }\r\n\r\n\r\n                                liveInitImage.value = maxBitmap\r\n                                liveHighlightedImage.value = mutableImageBitmap\r\n\r\n                            } }\r\n                }\r\n        }\r\n    }\r\n\r\n    fun setInitImage(bitmap: Bitmap?) {\r\n        liveInitImage.value = bitmap\r\n    }\r\n\r\n    fun setScanImageToInit() {\r\n        liveScanImage.value = highlightedImage.value\r\n    }\r\n\r\n    fun setLetterText(text: String) {\r\n        liveScanLettersText.value = text\r\n    }\r\n    fun setImageToNull() {\r\n        liveInitImage.value = null\r\n        liveHighlightedImage.value = null\r\n        liveScanImage.value = null\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainViewModel.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainViewModel.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainViewModel.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainViewModel.kt	(date 1673195843988)
+@@ -35,7 +35,7 @@
+ 
+     var lineBounds: ArrayList<Int> = ArrayList<Int>()
+ 
+-    fun findTextInBitmap() {
++    fun findTextInBitmap(bitmap: Bitmap?) {
+         var imageBitmap = liveInitImage.value!!
+         liveInitImage.value = imageBitmap
+         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.ui\r\n\r\nimport android.graphics.Bitmap\r\nimport android.os.Bundle\r\nimport android.util.Log\r\nimport androidx.activity.result.ActivityResultLauncher\r\nimport androidx.activity.viewModels\r\nimport androidx.appcompat.app.AppCompatActivity\r\nimport androidx.lifecycle.ViewModelProvider\r\nimport androidx.lifecycle.lifecycleScope\r\nimport androidx.navigation.NavController\r\nimport androidx.navigation.findNavController\r\nimport androidx.navigation.fragment.NavHostFragment\r\nimport io.scanbot.sdk.ScanbotSDK\r\nimport io.scanbot.sdk.docprocessing.PageProcessor\r\nimport io.scanbot.sdk.persistence.PageFileStorage\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.launch\r\nimport ru.ytken.a464_project_watermarks.ImportImageContract\r\nimport ru.ytken.a464_project_watermarks.ManifestPermission\r\nimport ru.ytken.a464_project_watermarks.R\r\nimport ru.ytken.a464_project_watermarks.repository.SavedImageRepositoryImpl\r\nimport ru.ytken.a464_project_watermarks.ui.fragments.PhotoCropFragment\r\nimport ru.ytken.a464_project_watermarks.viewmodels.SavedImageFactory\r\nimport ru.ytken.a464_project_watermarks.viewmodels.SavedImagesViewModel\r\nimport java.io.File\r\n\r\n\r\nclass MainActivity : AppCompatActivity() {\r\n    lateinit var navController: NavController\r\n    val viewModel: MainViewModel by viewModels()\r\n\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        setContentView(R.layout.activity_main)\r\n\r\n        lifecycleScope.launch(Dispatchers.Main) {\r\n            val navHostFragment =\r\n                supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment\r\n            navController = navHostFragment.navController\r\n        }\r\n        ManifestPermission.checkPermission(this)\r\n\r\n        scanbotSDK = ScanbotSDK(this)\r\n        pageFileStorage = scanbotSDK.createPageFileStorage()\r\n        pageProcess = scanbotSDK.createPageProcessor()\r\n\r\n        galleryImageLauncher = registerForActivityResult(ImportImageContract(this)){\r\n                resultEntity ->\r\n            val repository = SavedImageRepositoryImpl(this,scanbotSDK, pageFileStorage, pageProcess, resultEntity)\r\n            val savedModel = ViewModelProvider(this, SavedImageFactory(repository))[SavedImagesViewModel::class.java]\r\n            lifecycleScope.launch(Dispatchers.Main) {\r\n                savedModel.loadSavedImages()\r\n                savedModel.savedImagesUiState.observe(this@MainActivity) {\r\n                    val savedImagesDataState = it ?: return@observe\r\n                    if (savedImagesDataState.isLoading) {\r\n                        if (resultEntity!!.byteCount<1024*1024*100 && savedImagesDataState.error==\"loading\") {\r\n                                savedImagesDataState.savedImages = resultEntity\r\n                                viewModel.setInitImage(resultEntity)\r\n                                findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)\r\n                        } else if (savedImagesDataState.error == \"loading\" && resultEntity!!.byteCount>1024*1024*100) {\r\n                            savedImagesDataState.savedImages = null\r\n                            viewModel.setInitImage(null)\r\n                            findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)\r\n                        } else if (savedImagesDataState.error == \"error\") {\r\n                        }\r\n                        else {\r\n                            savedImagesDataState.savedImages = resultEntity\r\n                            viewModel.setInitImage(resultEntity)\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    companion object {\r\n        lateinit var galleryImageLauncher: ActivityResultLauncher<Unit>\r\n        lateinit var scanbotSDK: ScanbotSDK\r\n        lateinit var pageFileStorage: PageFileStorage\r\n        lateinit var pageProcess: PageProcessor\r\n        lateinit var bm: Bitmap\r\n        var ii: Int = 0\r\n    }\r\n\r\n    override fun onDestroy() {\r\n        clearApplicationData()\r\n        super.onDestroy()\r\n    }\r\n\r\n    fun clearApplicationData() {\r\n        val cache: File = applicationContext.cacheDir\r\n        val appDir = File(cache.getParent())\r\n        if (appDir.exists()) {\r\n            val children: Array<String> = appDir.list()\r\n            for (s in children) {\r\n                if (s != \"lib\") {\r\n                    deleteDir(File(appDir, s))\r\n                    Log.i(\"EEEEEERRRRRRROOOOOOORRRR\",\r\n                        \"**************** File /data/data/APP_PACKAGE/$s DELETED *******************\")\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    fun deleteDir(dir: File?): Boolean {\r\n        if (dir != null && dir.isDirectory()) {\r\n            val children: Array<String> = dir.list()\r\n            for (i in children.indices) {\r\n                val success = deleteDir(File(dir, children[i]))\r\n                if (!success) {\r\n                    return false\r\n                }\r\n            }\r\n        }\r\n        return dir!!.delete()\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainActivity.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainActivity.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainActivity.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/MainActivity.kt	(date 1673193261201)
+@@ -1,28 +1,16 @@
+ package ru.ytken.a464_project_watermarks.ui
+ 
+-import android.graphics.Bitmap
+ import android.os.Bundle
+ import android.util.Log
+-import androidx.activity.result.ActivityResultLauncher
+ import androidx.activity.viewModels
+ import androidx.appcompat.app.AppCompatActivity
+-import androidx.lifecycle.ViewModelProvider
+ import androidx.lifecycle.lifecycleScope
+ import androidx.navigation.NavController
+-import androidx.navigation.findNavController
+ import androidx.navigation.fragment.NavHostFragment
+-import io.scanbot.sdk.ScanbotSDK
+-import io.scanbot.sdk.docprocessing.PageProcessor
+-import io.scanbot.sdk.persistence.PageFileStorage
+ import kotlinx.coroutines.Dispatchers
+ import kotlinx.coroutines.launch
+-import ru.ytken.a464_project_watermarks.ImportImageContract
+ import ru.ytken.a464_project_watermarks.ManifestPermission
+ import ru.ytken.a464_project_watermarks.R
+-import ru.ytken.a464_project_watermarks.repository.SavedImageRepositoryImpl
+-import ru.ytken.a464_project_watermarks.ui.fragments.PhotoCropFragment
+-import ru.ytken.a464_project_watermarks.viewmodels.SavedImageFactory
+-import ru.ytken.a464_project_watermarks.viewmodels.SavedImagesViewModel
+ import java.io.File
+ 
+ 
+@@ -34,85 +22,45 @@
+         super.onCreate(savedInstanceState)
+         setContentView(R.layout.activity_main)
+ 
+-        lifecycleScope.launch(Dispatchers.Main) {
++        //lifecycleScope.launch(Dispatchers.Main) {
+             val navHostFragment =
+                 supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+             navController = navHostFragment.navController
+-        }
++        //}
+         ManifestPermission.checkPermission(this)
+ 
+-        scanbotSDK = ScanbotSDK(this)
+-        pageFileStorage = scanbotSDK.createPageFileStorage()
+-        pageProcess = scanbotSDK.createPageProcessor()
+-
+-        galleryImageLauncher = registerForActivityResult(ImportImageContract(this)){
+-                resultEntity ->
+-            val repository = SavedImageRepositoryImpl(this,scanbotSDK, pageFileStorage, pageProcess, resultEntity)
+-            val savedModel = ViewModelProvider(this, SavedImageFactory(repository))[SavedImagesViewModel::class.java]
+-            lifecycleScope.launch(Dispatchers.Main) {
+-                savedModel.loadSavedImages()
+-                savedModel.savedImagesUiState.observe(this@MainActivity) {
+-                    val savedImagesDataState = it ?: return@observe
+-                    if (savedImagesDataState.isLoading) {
+-                        if (resultEntity!!.byteCount<1024*1024*100 && savedImagesDataState.error=="loading") {
+-                                savedImagesDataState.savedImages = resultEntity
+-                                viewModel.setInitImage(resultEntity)
+-                                findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)
+-                        } else if (savedImagesDataState.error == "loading" && resultEntity!!.byteCount>1024*1024*100) {
+-                            savedImagesDataState.savedImages = null
+-                            viewModel.setInitImage(null)
+-                            findNavController(R.id.fragmentContainerView).navigate(R.id.action_buttonFragment_to_photoCropFragment)
+-                        } else if (savedImagesDataState.error == "error") {
+-                        }
+-                        else {
+-                            savedImagesDataState.savedImages = resultEntity
+-                            viewModel.setInitImage(resultEntity)
+-                        }
+-                    }
+-                }
+-            }
+-        }
+-    }
+-
+-    companion object {
+-        lateinit var galleryImageLauncher: ActivityResultLauncher<Unit>
+-        lateinit var scanbotSDK: ScanbotSDK
+-        lateinit var pageFileStorage: PageFileStorage
+-        lateinit var pageProcess: PageProcessor
+-        lateinit var bm: Bitmap
+-        var ii: Int = 0
+-    }
+-
+-    override fun onDestroy() {
+-        clearApplicationData()
+-        super.onDestroy()
+-    }
+-
+-    fun clearApplicationData() {
+-        val cache: File = applicationContext.cacheDir
+-        val appDir = File(cache.getParent())
+-        if (appDir.exists()) {
+-            val children: Array<String> = appDir.list()
+-            for (s in children) {
+-                if (s != "lib") {
+-                    deleteDir(File(appDir, s))
+-                    Log.i("EEEEEERRRRRRROOOOOOORRRR",
+-                        "**************** File /data/data/APP_PACKAGE/$s DELETED *******************")
+-                }
+-            }
+-        }
+     }
+ 
+-    fun deleteDir(dir: File?): Boolean {
+-        if (dir != null && dir.isDirectory()) {
+-            val children: Array<String> = dir.list()
+-            for (i in children.indices) {
+-                val success = deleteDir(File(dir, children[i]))
+-                if (!success) {
+-                    return false
+-                }
+-            }
+-        }
+-        return dir!!.delete()
+-    }
++//    override fun onDestroy() {
++//        clearApplicationData()
++//        super.onDestroy()
++//    }
++//
++//    fun clearApplicationData() {
++//        val cache: File = applicationContext.cacheDir
++//        val appDir = File(cache.getParent())
++//        if (appDir.exists()) {
++//            val children: Array<String> = appDir.list()
++//            for (s in children) {
++//                if (s != "lib") {
++//                    deleteDir(File(appDir, s))
++//                    Log.i("EEEEEERRRRRRROOOOOOORRRR",
++//                        "**************** File /data/data/APP_PACKAGE/$s DELETED *******************")
++//                }
++//            }
++//        }
++//    }
++//
++//    fun deleteDir(dir: File?): Boolean {
++//        if (dir != null && dir.isDirectory()) {
++//            val children: Array<String> = dir.list()
++//            for (i in children.indices) {
++//                val success = deleteDir(File(dir, children[i]))
++//                if (!success) {
++//                    return false
++//                }
++//            }
++//        }
++//        return dir!!.delete()
++//    }
+ }
+\ No newline at end of file
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/viewmodels/SavedImagesViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.viewmodels\r\n\r\nimport android.graphics.Bitmap\r\nimport android.util.Log\r\nimport androidx.lifecycle.LiveData\r\nimport androidx.lifecycle.MutableLiveData\r\nimport androidx.lifecycle.ViewModel\r\nimport ru.ytken.a464_project_watermarks.repository.SavedImageRepository\r\nimport ru.ytken.a464_project_watermarks.utilities.Coroutines\r\n\r\nclass SavedImagesViewModel(private val savedImagesRepository: SavedImageRepository) : ViewModel() {\r\n    private val savedImagesDataState = MutableLiveData<SavedImagesDataState>()\r\n    val savedImagesUiState: LiveData<SavedImagesDataState> get() = savedImagesDataState\r\n    fun loadSavedImages() {\r\n        Coroutines.io {\r\n            runCatching {\r\n                emitSavedImagesUiState(isLoading = true)\r\n                savedImagesRepository.loadSavedImage()\r\n            }\r\n                .onSuccess {\r\n                        savedImages->\r\n                if (savedImages!!.byteCount>1024*1024*100){\r\n                    emitSavedImagesUiState(savedImages=null, error = \"loading\", isLoading = true)\r\n                } else if (savedImages==null) {\r\n                    emitSavedImagesUiState(savedImages = null)\r\n                }\r\n                else\r\n                {\r\n                    emitSavedImagesUiState(savedImages=savedImages, error = \"loading\", isLoading = true)\r\n                }\r\n            }.onFailure {\r\n                    emitSavedImagesUiState(isLoading = false)\r\n            }\r\n        }\r\n    }\r\n\r\n    private fun emitSavedImagesUiState(\r\n        isLoading: Boolean = false,\r\n        savedImages: Bitmap? = null,\r\n        error: String? = null\r\n    ) {\r\n        val dataState = SavedImagesDataState(isLoading, savedImages, error)\r\n        savedImagesDataState.postValue(dataState)\r\n    }\r\n\r\n    data class SavedImagesDataState(\r\n        val isLoading: Boolean,\r\n        var savedImages: Bitmap?,\r\n        val error: String?\r\n    )\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/viewmodels/SavedImagesViewModel.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/viewmodels/SavedImagesViewModel.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/viewmodels/SavedImagesViewModel.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/viewmodels/SavedImagesViewModel.kt	(date 1673190736706)
+@@ -5,30 +5,30 @@
+ import androidx.lifecycle.LiveData
+ import androidx.lifecycle.MutableLiveData
+ import androidx.lifecycle.ViewModel
++import androidx.navigation.fragment.findNavController
++import ru.ytken.a464_project_watermarks.R
+ import ru.ytken.a464_project_watermarks.repository.SavedImageRepository
+ import ru.ytken.a464_project_watermarks.utilities.Coroutines
+ 
+ class SavedImagesViewModel(private val savedImagesRepository: SavedImageRepository) : ViewModel() {
+     private val savedImagesDataState = MutableLiveData<SavedImagesDataState>()
+     val savedImagesUiState: LiveData<SavedImagesDataState> get() = savedImagesDataState
+-    fun loadSavedImages() {
++    fun loadSavedImages(bitmap: Bitmap) {
+         Coroutines.io {
+             runCatching {
+                 emitSavedImagesUiState(isLoading = true)
+-                savedImagesRepository.loadSavedImage()
++                savedImagesRepository.loadSavedImage(bitmap)
++
+             }
+-                .onSuccess {
+-                        savedImages->
+-                if (savedImages!!.byteCount>1024*1024*100){
+-                    emitSavedImagesUiState(savedImages=null, error = "loading", isLoading = true)
+-                } else if (savedImages==null) {
+-                    emitSavedImagesUiState(savedImages = null)
+-                }
+-                else
+-                {
+-                    emitSavedImagesUiState(savedImages=savedImages, error = "loading", isLoading = true)
+-                }
+-            }.onFailure {
++                .onSuccess { savedImages->
++                    if (savedImages == null) {
++                        emitSavedImagesUiState(savedImages = null)
++                    } else if (savedImages.byteCount < 1024 * 1024 * 100) {
++                        emitSavedImagesUiState(savedImages = bitmap, error = "loading", isLoading = true)
++                    } else {
++                        emitSavedImagesUiState(savedImages = savedImages, error = "loading", isLoading = true)
++                    }
++                }.onFailure {
+                     emitSavedImagesUiState(isLoading = false)
+             }
+         }
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/SeeScanFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.ui.fragments\r\n\r\nimport android.content.ClipData\r\nimport android.content.ClipboardManager\r\nimport android.content.Context\r\nimport android.graphics.Bitmap\r\nimport android.os.Bundle\r\nimport android.util.Log\r\nimport android.view.View\r\nimport android.widget.Toast\r\nimport androidx.core.app.ActivityCompat\r\nimport androidx.fragment.app.Fragment\r\nimport androidx.fragment.app.activityViewModels\r\nimport androidx.lifecycle.lifecycleScope\r\nimport kotlinx.android.synthetic.main.fragment_scan_result.*\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.launch\r\nimport ru.ytken.a464_project_watermarks.R\r\nimport ru.ytken.a464_project_watermarks.Watermarks\r\nimport ru.ytken.a464_project_watermarks.toGrayscale\r\nimport ru.ytken.a464_project_watermarks.ui.MainActivity.Companion.pageFileStorage\r\nimport ru.ytken.a464_project_watermarks.ui.MainViewModel\r\nimport java.io.File\r\n\r\nclass SeeScanFragment: Fragment(R.layout.fragment_scan_result) {\r\n    private val vm: MainViewModel by activityViewModels()\r\n\r\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\r\n        super.onViewCreated(view, savedInstanceState)\r\n        val fileWithImage = vm.scanImage.value\r\n        if (fileWithImage != null) {\r\n            processImage(fileWithImage.toGrayscale()!!)\r\n        }\r\n\r\n        imageButtonNoSkan.setOnClickListener {\r\n            //findNavController().navigate(SeeScanFragmentDirections.actionSeeScanFragmentToButtonFragment())\r\n            ActivityCompat.finishAffinity(requireActivity())\r\n        }\r\n\r\n        imageViewCopyToBuffer.setOnClickListener {\r\n            val clipboard: ClipboardManager =\r\n                context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager\r\n            val clip = ClipData.newPlainText(\"\", textViewRecognizedText.text)\r\n            clipboard.setPrimaryClip(clip)\r\n            Toast.makeText(activity, getString(R.string.copyToBuffer), Toast.LENGTH_SHORT).show()\r\n        }\r\n    }\r\n\r\n    private fun processImage(fileWithImage: Bitmap) = lifecycleScope.launch(Dispatchers.Main) {\r\n        progressBarWaitForScan.visibility = View.VISIBLE\r\n        textViewProgress.visibility = View.VISIBLE\r\n        textViewProgress.text = getString(R.string.ScanningImage)\r\n\r\n        fileWithImage?.let {\r\n            imageViewSkanned.setImageBitmap(vm.initImage.value)\r\n            imageButtonNoSkan.visibility = View.VISIBLE\r\n            val watermarkSize = 24\r\n            var resMatrix = \"\"\r\n            val lineBounds = vm.lineBounds\r\n\r\n            try{\r\n                val lineIntervals = ArrayList<Int>()\r\n                for (i in 1 until lineBounds.size)\r\n                    lineIntervals.add(lineBounds[i]-lineBounds[i-1])\r\n                val watermark = Watermarks.getWatermark(lineIntervals)\r\n                if (watermark != null) {\r\n                    setTextButton(watermark.subSequence(0,watermarkSize).toString())\r\n                    vm.setLetterText(resMatrix)\r\n                } else\r\n                    setTextButton(\"No watermark\")\r\n            } catch (e: java.lang.IndexOutOfBoundsException) {\r\n                Toast.makeText(context, \"К сожалению изображение не содержит водяной знак!\", Toast.LENGTH_SHORT).show()\r\n            }\r\n\r\n            progressBarWaitForScan.visibility = View.INVISIBLE\r\n            textViewProgress.visibility = View.INVISIBLE\r\n        }\r\n    }\r\n\r\n    private fun setTextButton(text: String) {\r\n        textViewRecognizedText.visibility = View.VISIBLE\r\n        imageViewCopyToBuffer.visibility = View.VISIBLE\r\n        textViewRecognizedText.text = text\r\n    }\r\n\r\n    override fun onDestroy() {\r\n        vm.setImageToNull()\r\n        pageFileStorage.removeAll()\r\n//        clearApplicationData()\r\n        super.onDestroy()\r\n    }\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/SeeScanFragment.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/SeeScanFragment.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/SeeScanFragment.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/SeeScanFragment.kt	(date 1673117933803)
+@@ -18,7 +18,6 @@
+ import ru.ytken.a464_project_watermarks.R
+ import ru.ytken.a464_project_watermarks.Watermarks
+ import ru.ytken.a464_project_watermarks.toGrayscale
+-import ru.ytken.a464_project_watermarks.ui.MainActivity.Companion.pageFileStorage
+ import ru.ytken.a464_project_watermarks.ui.MainViewModel
+ import java.io.File
+ 
+@@ -85,7 +84,6 @@
+ 
+     override fun onDestroy() {
+         vm.setImageToNull()
+-        pageFileStorage.removeAll()
+ //        clearApplicationData()
+         super.onDestroy()
+     }
+Index: app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ImageResultFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ru.ytken.a464_project_watermarks.ui.fragments\r\n\r\nimport android.os.Bundle\r\nimport android.view.View\r\nimport android.widget.Toast\r\nimport androidx.fragment.app.Fragment\r\nimport androidx.fragment.app.activityViewModels\r\nimport androidx.navigation.fragment.findNavController\r\nimport kotlinx.android.synthetic.main.fragment_image_result.*\r\nimport ru.ytken.a464_project_watermarks.R\r\nimport ru.ytken.a464_project_watermarks.ui.MainViewModel\r\n\r\nclass ImageResultFragment: Fragment(R.layout.fragment_image_result) {\r\n    private val vm: MainViewModel by activityViewModels()\r\n\r\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\r\n        super.onViewCreated(view, savedInstanceState)\r\n\r\n        //imageButtonClose.setOnClickListener { findNavController().popBackStack() }\r\n\r\n        vm.findTextInBitmap()\r\n        progressBarWaitForImage.visibility = View.VISIBLE\r\n        imageViewResultImage.visibility = View.INVISIBLE\r\n        vm.highlightedImage.observe(viewLifecycleOwner) {\r\n            imageViewResultImage.setImageBitmap(it)\r\n            imageViewResultImage.visibility = View.VISIBLE\r\n            progressBarWaitForImage.visibility = View.INVISIBLE\r\n            if (vm.hasText.value == false) {\r\n                Toast.makeText(activity, getString(R.string.text_not_found), Toast.LENGTH_SHORT).show()\r\n            } else {\r\n                buttonSeeSkan.visibility = View.VISIBLE\r\n                buttonSeeSkan.setOnClickListener {\r\n                    vm.setScanImageToInit()\r\n                    findNavController().navigate(R.id.action_imageResultFragment_to_seeScanFragment)\r\n                }\r\n            }\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ImageResultFragment.kt b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ImageResultFragment.kt
+--- a/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ImageResultFragment.kt	(revision 4de894d018cbfa0fb99653ec4c7737e6c3fde76e)
++++ b/app/src/main/java/ru/ytken/a464_project_watermarks/ui/fragments/ImageResultFragment.kt	(date 1673195843995)
+@@ -1,5 +1,6 @@
+ package ru.ytken.a464_project_watermarks.ui.fragments
+ 
++import android.graphics.Bitmap
+ import android.os.Bundle
+ import android.view.View
+ import android.widget.Toast
+@@ -16,9 +17,7 @@
+     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+         super.onViewCreated(view, savedInstanceState)
+ 
+-        //imageButtonClose.setOnClickListener { findNavController().popBackStack() }
+-
+-        vm.findTextInBitmap()
++        vm.findTextInBitmap(bitmap)
+         progressBarWaitForImage.visibility = View.VISIBLE
+         imageViewResultImage.visibility = View.INVISIBLE
+         vm.highlightedImage.observe(viewLifecycleOwner) {
+@@ -36,4 +35,7 @@
+             }
+         }
+     }
++    companion object {
++        var bitmap: Bitmap?= null
++    }
+ }
+\ No newline at end of file

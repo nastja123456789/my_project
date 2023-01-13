@@ -2,7 +2,6 @@ package ru.ytken.a464_project_watermarks.repository
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import io.scanbot.sdk.ScanbotSDK
 import io.scanbot.sdk.core.contourdetector.DetectionStatus
 import io.scanbot.sdk.docprocessing.PageProcessor
@@ -17,18 +16,15 @@ class SavedImageRepositoryImpl(
     private var scanbotSDK: ScanbotSDK,
     private var pageFileStorage: PageFileStorage,
     private var pageProcessor: PageProcessor,
-    private var bitmap: Bitmap? = null
 ): SavedImageRepository {
 
-    override suspend fun loadSavedImage(): Bitmap? {
+    override suspend fun loadSavedImage(bitmap: Bitmap): Bitmap? {
         scanbotSDK = ScanbotSDK(context)
         pageFileStorage = scanbotSDK.createPageFileStorage()
         var initialBitmap: Bitmap?
-        val notOrNot: String
-        notOrNot = pageFileStorage.add(bitmap!!)
+        val notOrNot: String = pageFileStorage.add(bitmap)
         withContext(Dispatchers.Main) {
-            val pageId = notOrNot
-            var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+            var page = Page(notOrNot, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
             page = pageProcessor.detectDocument(page)
             val image = pageFileStorage.getImage(
                 page.pageId,
