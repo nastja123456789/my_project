@@ -17,30 +17,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import ru.ytken.a464_project_watermarks.rotateBitmap
 
-class MainViewModel: ViewModel() {
-    private val liveScanLettersText = MutableLiveData<String>()
-    val scanLettersText: LiveData<String> = liveScanLettersText
+class ImageResultFragmentViewModel: ViewModel() {
 
     private val liveInitImage = MutableLiveData<Bitmap>()
-    val initImage: LiveData<Bitmap> = liveInitImage
 
     private val liveHighlightedImage = MutableLiveData<Bitmap>()
     val highlightedImage: LiveData<Bitmap> = liveHighlightedImage
 
     private val liveScanImage = MutableLiveData<Bitmap>()
-    val scanImage: LiveData<Bitmap> = liveScanImage
 
     private val liveHasText = MutableLiveData<Boolean>()
     val hasText: LiveData<Boolean> = liveHasText
 
-    var lineBounds: ArrayList<Int> = ArrayList<Int>()
+    var lineBounds: ArrayList<Int> = ArrayList()
 
-    fun findTextInBitmap() {
-        var imageBitmap = liveInitImage.value!!
+    fun findTextInBitmap(imageBitmap: Bitmap) {
         liveInitImage.value = imageBitmap
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         var maxBitmap: Bitmap = imageBitmap
-        var maxText: Int = 0
+        var maxText = 0
         var maxBlocks: List<Text.TextBlock>? = null
         lineBounds.clear()
 
@@ -61,7 +56,7 @@ class MainViewModel: ViewModel() {
                                 val mutableImageBitmap = maxBitmap.copy(Bitmap.Config.ARGB_8888,true)
 
                                 val canvas = Canvas(mutableImageBitmap)
-                                var shapeDrawable = ShapeDrawable(RectShape())
+                                val shapeDrawable = ShapeDrawable(RectShape())
                                 shapeDrawable.paint.style = Paint.Style.STROKE
                                 shapeDrawable.paint.strokeWidth = 10F
 
@@ -90,20 +85,7 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    fun setInitImage(bitmap: Bitmap?) {
-        liveInitImage.value = bitmap
-    }
-
     fun setScanImageToInit() {
         liveScanImage.value = highlightedImage.value
-    }
-
-    fun setLetterText(text: String) {
-        liveScanLettersText.value = text
-    }
-    fun setImageToNull() {
-        liveInitImage.value = null
-        liveHighlightedImage.value = null
-        liveScanImage.value = null
     }
 }

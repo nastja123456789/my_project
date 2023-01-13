@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import ru.ytken.a464_project_watermarks.repository.SavedImageRepository
 
 class SavedImageFactory(
-    val savedImagesRepository: SavedImageRepository
+    private val savedImagesRepository: SavedImageRepository
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

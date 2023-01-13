@@ -1,15 +1,17 @@
 package ru.ytken.a464_project_watermarks.ui.fragments
-import android.content.Intent
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat.finishAffinity
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import io.scanbot.sdk.ScanbotSDK
 import io.scanbot.sdk.core.contourdetector.ContourDetector
@@ -18,18 +20,15 @@ import io.scanbot.sdk.persistence.Page
 import io.scanbot.sdk.persistence.PageFileStorage
 import io.scanbot.sdk.process.ImageFilterType
 import io.scanbot.sdk.process.ImageProcessor
+import io.scanbot.sdk.ui.registerForActivityResultOk
 import io.scanbot.sdk.ui.view.edit.CroppingActivity
 import io.scanbot.sdk.ui.view.edit.configuration.CroppingConfiguration
 import kotlinx.android.synthetic.main.fragment_photo_crop.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.R
-import ru.ytken.a464_project_watermarks.ui.MainActivity
-import ru.ytken.a464_project_watermarks.ui.MainViewModel
+import java.io.ByteArrayOutputStream
+import java.util.*
 
 internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
-
-    private val vm: MainViewModel by activityViewModels()
 
     private lateinit var imageProcessor: ImageProcessor
     private lateinit var contourDetector: ContourDetector
@@ -40,10 +39,18 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        selectedImage = vm.initImage.value
+        setFragmentResultListener("fromButtonToCrop") {
+                _ , bun ->
+            val str = bun.getString("uri")
+            val uri = Uri.parse(
+                str
+            )
+            selectedImage = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
+            resultImageView.setImageBitmap(selectedImage)
+        }
         imageButtonCloseCrop.visibility = View.INVISIBLE
         if (selectedImage == null) {
-            Toast.makeText(context, "Загрузите другой файл!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Загрузите файл!", Toast.LENGTH_SHORT).show()
             cropButton.visibility = View.INVISIBLE
             saveButton.visibility = View.INVISIBLE
             imageButtonCloseCrop.visibility = View.VISIBLE
@@ -82,20 +89,14 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             if (selectedImage!=null) {
                 val pageId = pageFileStorage.add(selectedImage!!)
 
-                if (pageId==null) {
-                    Toast.makeText(context, "Загрузите новый файл!", Toast.LENGTH_SHORT).show()
-                } else {
-                    var page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
+                val page = Page(pageId, emptyList(), DetectionStatus.OK, ImageFilterType.NONE)
 
-                    try {
-                        cropping = CroppingConfiguration(page)
-                        val intent = CroppingActivity.newIntent(context!!, cropping)
-                        startActivityForResult(intent, CROP_UI_REQUEST_CODE_CONSTANT)
-                    } catch (e: RuntimeException) {
-                        findNavController().popBackStack()
-                        Toast.makeText(context, "sorry, session has been done", Toast.LENGTH_SHORT).show()
-                    }
-
+                try {
+                    cropping = CroppingConfiguration(page)
+                    resultLauncher.launch(cropping)
+                } catch (e: RuntimeException) {
+                    findNavController().popBackStack()
+                    Toast.makeText(context, "sorry, session has been done", Toast.LENGTH_SHORT).show()
                 }
             }
             else {
@@ -105,28 +106,24 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CROP_UI_REQUEST_CODE_CONSTANT) {
-            val result = CroppingActivity.extractResult(resultCode, data)!!
-            try {
-                if (result.resultOk) {
-                    val page: String? = result.result!!.pageId
-                    val image: Bitmap? = pageFileStorage.getImage(page!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
-                    vm.setInitImage(image!!)
-                }
-            } catch (e: RuntimeException) {
-                findNavController().popBackStack()
-                Toast.makeText(context, "sorry, session has been done", Toast.LENGTH_SHORT).show()
+    private var resultLauncher = registerForActivityResultOk(CroppingActivity.ResultContract()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultOk) {
+                val page: String = result.result!!.pageId
+                val image: Bitmap? = pageFileStorage.getImage(page, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
+                //vm.setInitImage(image!!)
+                val bytes = ByteArrayOutputStream()
+                image!!.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+                val path: String = MediaStore.Images.Media.insertImage(
+                    requireActivity().contentResolver,
+                    image,
+                    "IMG_" + Calendar.getInstance().time,
+                    null
+                )
+                val uri = Uri.parse(path)
+                setFragmentResult("fromCropToImage", bundleOf("uri" to uri.toString()))
             }
             findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
-        }
-    }
-
-    companion object {
-        val CROP_UI_REQUEST_CODE_CONSTANT = 100
-        fun newInstance(): PhotoCropFragment {
-            return PhotoCropFragment()
         }
     }
 }

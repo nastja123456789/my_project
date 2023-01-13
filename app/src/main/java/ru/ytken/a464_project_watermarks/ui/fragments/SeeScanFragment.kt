@@ -4,13 +4,15 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.fragment_scan_result.*
 import kotlinx.coroutines.Dispatchers
@@ -18,15 +20,23 @@ import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.Watermarks
 import ru.ytken.a464_project_watermarks.toGrayscale
-import ru.ytken.a464_project_watermarks.ui.MainActivity.Companion.pageFileStorage
-import ru.ytken.a464_project_watermarks.ui.MainViewModel
-import java.io.File
+import ru.ytken.a464_project_watermarks.ui.SeeScanFragmentViewModel
 
 class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
-    private val vm: MainViewModel by activityViewModels()
+    private val vm: SeeScanFragmentViewModel by activityViewModels()
+    private var fileWithImage: Bitmap? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setFragmentResultListener("fromCropToImage") {
+                _, bun ->
+            val str = bun.getString("uri")
+            val uri = Uri.parse(
+                str
+            )
+            fileWithImage = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
+            imageViewSkanned.setImageBitmap(fileWithImage)
+        }
         val fileWithImage = vm.scanImage.value
         if (fileWithImage != null) {
             processImage(fileWithImage.toGrayscale()!!)
@@ -51,11 +61,10 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
         textViewProgress.visibility = View.VISIBLE
         textViewProgress.text = getString(R.string.ScanningImage)
 
-        fileWithImage?.let {
-            imageViewSkanned.setImageBitmap(vm.initImage.value)
+        fileWithImage.let {
             imageButtonNoSkan.visibility = View.VISIBLE
             val watermarkSize = 24
-            var resMatrix = ""
+            val resMatrix = ""
             val lineBounds = vm.lineBounds
 
             try{
@@ -71,7 +80,6 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
             } catch (e: java.lang.IndexOutOfBoundsException) {
                 Toast.makeText(context, "К сожалению изображение не содержит водяной знак!", Toast.LENGTH_SHORT).show()
             }
-
             progressBarWaitForScan.visibility = View.INVISIBLE
             textViewProgress.visibility = View.INVISIBLE
         }
@@ -82,12 +90,4 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
         imageViewCopyToBuffer.visibility = View.VISIBLE
         textViewRecognizedText.text = text
     }
-
-    override fun onDestroy() {
-        vm.setImageToNull()
-        pageFileStorage.removeAll()
-//        clearApplicationData()
-        super.onDestroy()
-    }
-
 }
