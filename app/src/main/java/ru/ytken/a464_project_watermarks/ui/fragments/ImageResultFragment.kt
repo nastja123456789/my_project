@@ -40,6 +40,30 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
             val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
             vm.findTextInBitmap(bitmap)
         }
+        buttonSeeSkan.setOnClickListener {
+            vm.setScanImageToInit()
+            val bit = vm.scanImage.value
+            val bytes = ByteArrayOutputStream()
+            bit!!.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+            val path: String = MediaStore.Images.Media.insertImage(
+                requireActivity().contentResolver,
+                bit,
+                "IMG_" + Calendar.getInstance().time,
+                null
+            )
+            val uri = Uri.parse(path)
+            setFragmentResult(
+                "fromImageToSeeScan",
+                bundleOf("uri" to uri.toString())
+            )
+            val arr = vm.lineBounds
+            setFragmentResult(
+                "arrayList",
+                bundleOf( "array" to arr.toString())
+            )
+
+            findNavController().navigate(R.id.action_imageResultFragment_to_seeScanFragment)
+        }
         progressBarWaitForImage.visibility = View.VISIBLE
         imageViewResultImage.visibility = View.INVISIBLE
         vm.highlightedImage.observe(viewLifecycleOwner) {
@@ -50,24 +74,6 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
                 Toast.makeText(activity, getString(R.string.text_not_found), Toast.LENGTH_SHORT).show()
             } else {
                 buttonSeeSkan.visibility = View.VISIBLE
-                buttonSeeSkan.setOnClickListener {
-                    vm.setScanImageToInit()
-                    val bit = vm.scanImage.value
-                    val bytes = ByteArrayOutputStream()
-                    bit!!.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-                    val path: String = MediaStore.Images.Media.insertImage(
-                        requireActivity().contentResolver,
-                        bit,
-                        "IMG_" + Calendar.getInstance().time,
-                        null
-                    )
-                    val uri = Uri.parse(path)
-                    setFragmentResult(
-                        "fromImageToSeeScan",
-                        bundleOf("uri" to uri.toString())
-                    )
-                    findNavController().navigate(R.id.action_imageResultFragment_to_seeScanFragment)
-                }
             }
         }
     }
