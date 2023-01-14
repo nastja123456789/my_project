@@ -1,17 +1,23 @@
 package ru.ytken.a464_project_watermarks.ui.fragments
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.fragment_image_result.*
 import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.ui.ImageResultFragmentViewModel
+import java.io.ByteArrayOutputStream
+import java.util.*
 
 class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
     private val vm: ImageResultFragmentViewModel by activityViewModels()
@@ -38,6 +44,20 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
                 buttonSeeSkan.visibility = View.VISIBLE
                 buttonSeeSkan.setOnClickListener {
                     vm.setScanImageToInit()
+                    val bit = vm.scanImage.value
+                    val bytes = ByteArrayOutputStream()
+                    bit!!.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+                    val path: String = MediaStore.Images.Media.insertImage(
+                        requireActivity().contentResolver,
+                        bit,
+                        "IMG_" + Calendar.getInstance().time,
+                        null
+                    )
+                    val uri = Uri.parse(path)
+                    setFragmentResult(
+                        "fromImageToSeeScan",
+                        bundleOf("uri" to uri.toString())
+                    )
                     findNavController().navigate(R.id.action_imageResultFragment_to_seeScanFragment)
                 }
             }

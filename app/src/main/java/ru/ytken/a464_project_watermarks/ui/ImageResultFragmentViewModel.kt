@@ -25,6 +25,7 @@ class ImageResultFragmentViewModel: ViewModel() {
     val highlightedImage: LiveData<Bitmap> = liveHighlightedImage
 
     private val liveScanImage = MutableLiveData<Bitmap>()
+    val scanImage: LiveData<Bitmap> = liveScanImage
 
     private val liveHasText = MutableLiveData<Boolean>()
     val hasText: LiveData<Boolean> = liveHasText

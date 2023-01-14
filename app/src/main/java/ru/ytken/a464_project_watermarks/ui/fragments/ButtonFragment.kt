@@ -58,11 +58,15 @@ class ButtonFragment : Fragment(
 
             lifecycleScope.launch(Dispatchers.Main) {
                 bit = savedModel.loadSavedImages()
+                if (bit!=null) {
+                    setFragmentResult(
+                        "fromButtonToCrop",
+                        bundleOf("uri" to resultEntity.toString())
+                    )
+                    findNavController().navigate(R.id.action_buttonFragment_to_photoCropFragment)
+                }
             }
-            if (bit!=null) {
-                setFragmentResult("fromButtonToCrop", bundleOf("uri" to resultEntity.toString()))
-                findNavController().navigate(R.id.action_buttonFragment_to_photoCropFragment)
-            }
+
         }
         buttonTakePhoto.setOnClickListener {
             takePhoto()
@@ -102,7 +106,10 @@ class ButtonFragment : Fragment(
                     null
             )
                 val uri = Uri.parse(path)
-                setFragmentResult("fromButtonToImage", bundleOf("uri" to uri.toString()))
+                setFragmentResult(
+                    "fromButtonToImage",
+                    bundleOf("uri" to uri.toString())
+                )
                 //pageFileStorage.remove(pageId!!)
             }
             findNavController().navigate(R.id.action_mainFragment_to_imageResultFragment)

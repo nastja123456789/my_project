@@ -36,10 +36,22 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
             )
             fileWithImage = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
             imageViewSkanned.setImageBitmap(fileWithImage)
+            if (fileWithImage != null) {
+                processImage(fileWithImage!!.toGrayscale()!!)
+            }
         }
-        val fileWithImage = vm.scanImage.value
-        if (fileWithImage != null) {
-            processImage(fileWithImage.toGrayscale()!!)
+        //fromImageToSeeScan
+        setFragmentResultListener("fromImageToSeeScan") {
+                _, bun ->
+            val str = bun.getString("uri")
+            val uri = Uri.parse(
+                str
+            )
+            fileWithImage = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
+            imageViewSkanned.setImageBitmap(fileWithImage)
+            if (fileWithImage != null) {
+                processImage(fileWithImage!!.toGrayscale()!!)
+            }
         }
 
         imageButtonNoSkan.setOnClickListener {
