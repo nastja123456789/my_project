@@ -2,15 +2,16 @@ package ru.ytken.a464_project_watermarks.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ru.ytken.a464_project_watermarks.repository.SavedImageRepository
+import ru.ytken.a464_project_watermarks.ui.ImageResultFragmentViewModel
+import ru.ytken.a464_project_watermarks.ui.SeeScanFragmentViewModel
 
-class SavedImageFactory(
-    private val savedImagesRepository: SavedImageRepository
-) : ViewModelProvider.Factory {
-
+class SavedImageFactory: ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if(modelClass.isAssignableFrom(SavedImagesViewModel::class.java)){
-            return SavedImagesViewModel(savedImagesRepository = savedImagesRepository) as T
+        if(modelClass.isAssignableFrom(ImageResultFragmentViewModel::class.java)){
+            return ImageResultFragmentViewModel() as T
+        }
+        if(modelClass.isAssignableFrom(SeeScanFragmentViewModel::class.java)){
+            return SeeScanFragmentViewModel() as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

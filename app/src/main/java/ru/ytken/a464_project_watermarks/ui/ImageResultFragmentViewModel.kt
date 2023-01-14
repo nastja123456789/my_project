@@ -76,16 +76,12 @@ class ImageResultFragmentViewModel: ViewModel() {
                                 } else {
                                     liveHasText.value = false
                                 }
-
-
                                 liveInitImage.value = maxBitmap
                                 liveHighlightedImage.value = mutableImageBitmap
-
                             } }
                 }
         }
     }
-
     fun setScanImageToInit() {
         liveScanImage.value = highlightedImage.value
     }

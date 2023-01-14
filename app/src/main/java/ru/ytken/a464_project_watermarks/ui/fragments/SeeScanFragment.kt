@@ -11,8 +11,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.fragment_scan_result.*
 import kotlinx.coroutines.Dispatchers
@@ -21,26 +21,16 @@ import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.Watermarks
 import ru.ytken.a464_project_watermarks.toGrayscale
 import ru.ytken.a464_project_watermarks.ui.SeeScanFragmentViewModel
+import ru.ytken.a464_project_watermarks.viewmodels.SavedImageFactory
 
 class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
-    private val vm: SeeScanFragmentViewModel by activityViewModels()
+    private val vm: SeeScanFragmentViewModel by viewModels {
+        SavedImageFactory()
+    }
     private var fileWithImage: Bitmap? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setFragmentResultListener("fromCropToImage") {
-                _, bun ->
-            val str = bun.getString("uri")
-            val uri = Uri.parse(
-                str
-            )
-            fileWithImage = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
-            imageViewSkanned.setImageBitmap(fileWithImage)
-            if (fileWithImage != null) {
-                processImage(fileWithImage!!.toGrayscale()!!)
-            }
-        }
-        //fromImageToSeeScan
         setFragmentResultListener("fromImageToSeeScan") {
                 _, bun ->
             val str = bun.getString("uri")
@@ -55,7 +45,6 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
         }
 
         imageButtonNoSkan.setOnClickListener {
-            //findNavController().navigate(SeeScanFragmentDirections.actionSeeScanFragmentToButtonFragment())
             ActivityCompat.finishAffinity(requireActivity())
         }
 

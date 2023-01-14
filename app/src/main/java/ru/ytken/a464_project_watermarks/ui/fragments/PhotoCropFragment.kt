@@ -47,35 +47,35 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             )
             selectedImage = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
             resultImageView.setImageBitmap(selectedImage)
-        }
-        imageButtonCloseCrop.visibility = View.INVISIBLE
-        if (selectedImage == null) {
-            Toast.makeText(context, "Загрузите файл!", Toast.LENGTH_SHORT).show()
-            cropButton.visibility = View.INVISIBLE
-            saveButton.visibility = View.INVISIBLE
-            imageButtonCloseCrop.visibility = View.VISIBLE
-            resultImageView.setImageBitmap(null)
-        }
-        else {
-            createSDK()
-            resultImageView.visibility = View.VISIBLE
-            resultImageView.setImageBitmap(selectedImage)
-        }
-        cropButton.setOnClickListener {
+            imageButtonCloseCrop.visibility = View.INVISIBLE
+                    if (selectedImage == null) {
+                        Toast.makeText(context, "Загрузите файл!", Toast.LENGTH_SHORT).show()
+                        cropButton.visibility = View.INVISIBLE
+                        saveButton.visibility = View.INVISIBLE
+                        imageButtonCloseCrop.visibility = View.VISIBLE
+                        resultImageView.setImageBitmap(null)
+                    }
+                    else {
+                        createSDK()
+                        resultImageView.visibility = View.VISIBLE
+                        resultImageView.setImageBitmap(selectedImage)
+                    }
+            cropButton.setOnClickListener {
                 crop()
-        }
-        saveButton.setOnClickListener {
-            if (selectedImage!=null) {
-                findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
-            } else {
-                findNavController().popBackStack()
+            }
+            saveButton.setOnClickListener {
+                if (selectedImage!=null) {
+                    findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
+                } else {
+                    findNavController().popBackStack()
+                }
+            }
+
+            imageButtonCloseCrop.setOnClickListener {
+                finishAffinity(requireActivity())
             }
         }
 
-        imageButtonCloseCrop.setOnClickListener {
-            //findNavController().popBackStack()
-            finishAffinity(requireActivity())
-        }
     }
 
     private fun createSDK() {
@@ -111,7 +111,6 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
             if (result.resultOk) {
                 val page: String = result.result!!.pageId
                 val image: Bitmap? = pageFileStorage.getImage(page, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
-                //vm.setInitImage(image!!)
                 val bytes = ByteArrayOutputStream()
                 image!!.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
                 val path: String = MediaStore.Images.Media.insertImage(
