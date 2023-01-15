@@ -1,4 +1,4 @@
-package ru.ytken.a464_project_watermarks.ui
+package ru.ytken.a464_project_watermarks.ui.viewmodel
 
 
 import android.graphics.Bitmap

@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -21,8 +20,8 @@ import kotlinx.coroutines.launch
 import ru.ytken.a464_project_watermarks.R
 import ru.ytken.a464_project_watermarks.Watermarks
 import ru.ytken.a464_project_watermarks.toGrayscale
-import ru.ytken.a464_project_watermarks.ui.SeeScanFragmentViewModel
-import ru.ytken.a464_project_watermarks.viewmodels.SavedImageFactory
+import ru.ytken.a464_project_watermarks.ui.viewmodel.SeeScanFragmentViewModel
+import ru.ytken.a464_project_watermarks.domain.SavedImageFactory
 
 class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
     private val vm: SeeScanFragmentViewModel by viewModels {
@@ -76,11 +75,10 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
             val watermarkSize = 24
             val resMatrix = ""
             val lineBounds = vm.lineBounds
-            Log.d("$lineBounds","rrrrrrrrr")
             try{
                 val lineIntervals = ArrayList<Int>()
-                for (i in 1 until lineBounds!!.size)
-                    lineIntervals.add((lineBounds[i] ?: 0) -lineBounds[i-1])
+                for (i in 1 until lineBounds.size)
+                    lineIntervals.add((lineBounds[i]) -lineBounds[i-1])
                 val watermark = Watermarks.getWatermark(lineIntervals)
                 if (watermark != null) {
                     setTextButton(watermark.subSequence(0,watermarkSize).toString())
@@ -99,5 +97,9 @@ class SeeScanFragment: Fragment(R.layout.fragment_scan_result) {
         textViewRecognizedText.visibility = View.VISIBLE
         imageViewCopyToBuffer.visibility = View.VISIBLE
         textViewRecognizedText.text = text
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        imageViewSkanned.setImageBitmap(null)
     }
 }

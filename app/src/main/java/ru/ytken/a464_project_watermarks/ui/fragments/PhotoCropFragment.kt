@@ -79,10 +79,10 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
     }
 
     private fun createSDK() {
-        val scanbotSDK = ScanbotSDK(context!!)
-        pageFileStorage = scanbotSDK.createPageFileStorage()
-        contourDetector = scanbotSDK.createContourDetector()
-        imageProcessor = scanbotSDK.imageProcessor()
+        val scanbot = ScanbotSDK(context!!)
+        pageFileStorage = scanbot.createPageFileStorage()
+        contourDetector = scanbot.createContourDetector()
+        imageProcessor = scanbot.imageProcessor()
     }
 
     private fun crop() {
@@ -121,6 +121,7 @@ internal class PhotoCropFragment : Fragment(R.layout.fragment_photo_crop) {
                 )
                 val uri = Uri.parse(path)
                 setFragmentResult("fromCropToImage", bundleOf("uri" to uri.toString()))
+                image.recycle()
             }
             findNavController().navigate(R.id.action_photoCropFragment_to_imageResultFragment)
         }

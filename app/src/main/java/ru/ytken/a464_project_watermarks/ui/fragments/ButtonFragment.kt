@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.os.bundleOf
@@ -29,9 +28,9 @@ import java.util.*
 class ButtonFragment : Fragment(
     R.layout.fragment_button,
 ) {
-    private lateinit var scanbot: ScanbotSDK
-    private lateinit var pageFileStorage: PageFileStorage
-    private lateinit var pageProcess: PageProcessor
+    private var scanbot: ScanbotSDK ?= null
+    private var pageFileStorage: PageFileStorage ?= null
+    private var pageProcess: PageProcessor ?= null
     private var pageId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +40,8 @@ class ButtonFragment : Fragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        stopSDK()
+
         galleryImageLauncher = registerForActivityResult(ImportImageContract(requireContext())){ resultEntity ->
             if (resultEntity!=null) {
                 setFragmentResult(
@@ -48,6 +49,8 @@ class ButtonFragment : Fragment(
                     bundleOf("uri" to resultEntity.toString())
                 )
                 findNavController().navigate(R.id.action_buttonFragment_to_photoCropFragment)
+            } else {
+                reLoadFragment()
             }
         }
         buttonTakePhoto.setOnClickListener {
@@ -55,6 +58,7 @@ class ButtonFragment : Fragment(
         }
 
         buttonChoosePhotoFromStorage.setOnClickListener {
+            createSDK()
             galleryImageLauncher.launch(Unit)
             buttonChoosePhotoFromStorage.visibility = View.INVISIBLE
             buttonTakePhoto.visibility = View.INVISIBLE
@@ -64,11 +68,12 @@ class ButtonFragment : Fragment(
 
     private fun createSDK() {
         scanbot = ScanbotSDK(requireActivity())
-        pageFileStorage = scanbot.createPageFileStorage()
-        pageProcess = scanbot.createPageProcessor()
+        pageFileStorage = scanbot!!.createPageFileStorage()
+        pageProcess = scanbot!!.createPageProcessor()
     }
 
     private fun takePhoto() {
+        createSDK()
         val cameraConfiguration = DocumentScannerConfiguration()
         resultLauncher.launch(cameraConfiguration)
     }
@@ -77,9 +82,8 @@ class ButtonFragment : Fragment(
         if (result.resultOk) {
                 val snappedPages: List<Page>? = result.result
                 pageId = snappedPages?.get(0)?.pageId
-                val image = pageFileStorage.getImage(pageId!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
+                val image = pageFileStorage!!.getImage(pageId!!, PageFileStorage.PageFileType.DOCUMENT, BitmapFactory.Options())
                 val bytes = ByteArrayOutputStream()
-                Log.d("$image","imageimage")
                 image!!.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
                 val path: String = MediaStore.Images.Media.insertImage(
                     requireActivity().contentResolver,
@@ -92,10 +96,28 @@ class ButtonFragment : Fragment(
                     "fromButtonToImage",
                     bundleOf("uri" to uri.toString())
                 )
+                image.recycle()
             }
             findNavController().navigate(R.id.action_mainFragment_to_imageResultFragment)
     }
+
+    private fun  stopSDK(){
+        scanbot = null
+        pageFileStorage = null
+        pageProcess = null
+    }
+
+    private fun reLoadFragment(){
+        val id = findNavController().currentDestination?.id
+        findNavController().popBackStack(id!!,true)
+        findNavController().navigate(id)
+    }
     companion object {
         lateinit var galleryImageLauncher: ActivityResultLauncher<Unit>
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        stopSDK()
     }
 }

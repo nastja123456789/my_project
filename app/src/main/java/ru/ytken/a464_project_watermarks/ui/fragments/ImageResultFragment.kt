@@ -11,8 +11,8 @@ import androidx.fragment.app.*
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.fragment_image_result.*
 import ru.ytken.a464_project_watermarks.R
-import ru.ytken.a464_project_watermarks.ui.ImageResultFragmentViewModel
-import ru.ytken.a464_project_watermarks.viewmodels.SavedImageFactory
+import ru.ytken.a464_project_watermarks.ui.viewmodel.ImageResultFragmentViewModel
+import ru.ytken.a464_project_watermarks.domain.SavedImageFactory
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -39,15 +39,15 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
             )
             val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
             vm.findTextInBitmap(bitmap)
+            bitmap.recycle()
         }
         buttonSeeSkan.setOnClickListener {
             vm.setScanImageToInit()
-            val bit = vm.scanImage.value
             val bytes = ByteArrayOutputStream()
-            bit!!.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+            vm.scanImage.value!!.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
             val path: String = MediaStore.Images.Media.insertImage(
                 requireActivity().contentResolver,
-                bit,
+                vm.scanImage.value,
                 "IMG_" + Calendar.getInstance().time,
                 null
             )
@@ -72,9 +72,18 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
             progressBarWaitForImage.visibility = View.INVISIBLE
             if (vm.hasText.value == false) {
                 Toast.makeText(activity, getString(R.string.text_not_found), Toast.LENGTH_SHORT).show()
+                imageButtonClose.visibility = View.VISIBLE
             } else {
                 buttonSeeSkan.visibility = View.VISIBLE
             }
         }
+        imageButtonClose.setOnClickListener {
+            findNavController().popBackStack()
+        }
+    }
+    
+    override fun onDestroyView() {
+        super.onDestroyView()
+        imageViewResultImage.setImageBitmap(null)
     }
 }

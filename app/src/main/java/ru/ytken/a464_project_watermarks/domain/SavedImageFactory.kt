@@ -1,9 +1,9 @@
-package ru.ytken.a464_project_watermarks.viewmodels
+package ru.ytken.a464_project_watermarks.domain
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ru.ytken.a464_project_watermarks.ui.ImageResultFragmentViewModel
-import ru.ytken.a464_project_watermarks.ui.SeeScanFragmentViewModel
+import ru.ytken.a464_project_watermarks.ui.viewmodel.ImageResultFragmentViewModel
+import ru.ytken.a464_project_watermarks.ui.viewmodel.SeeScanFragmentViewModel
 
 class SavedImageFactory: ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
