@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.*
 import androidx.navigation.fragment.findNavController
@@ -78,10 +79,11 @@ class ImageResultFragment: Fragment(R.layout.fragment_image_result) {
             }
         }
         imageButtonClose.setOnClickListener {
-            findNavController().popBackStack()
+            ActivityCompat.finishAffinity(requireActivity())
+            //findNavController().popBackStack()
         }
     }
-    
+
     override fun onDestroyView() {
         super.onDestroyView()
         imageViewResultImage.setImageBitmap(null)
